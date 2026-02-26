@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán| Veloria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+
+    <style>
+        /* CSS cơ bản để demo phong cách tối giản */
+        body { font-family: 'Times New Roman', serif; background-color: #F8F8F8; color: #333; margin: 0; }
+        .header { background-color: #FFF; border-bottom: 1px solid #EEE; }
+
+        .cta-button { background-color: #A52A2A; color: #FFF; padding: 10px 20px; text-decoration: none; display: inline-block; margin-top: 15px; }
+
+
+        .article-meta .author {
+            color: #A52A2A; /* Tên tác giả dùng màu nhấn */
+            font-weight: bold;
+        }
+
+        .read-more:hover {
+            color: #b31640; /* Đậm hơn khi hover */
+        }
+
+        .main-footer {
+            background-color: #A52A2A; /* Màu đỏ hồng đậm, màu nhấn của bạn */
+            color: #FFF;
+            padding-top: 50px;
+        }
+
+        .footer-container {
+            display: grid;
+            /* Chia 3 cột bằng nhau */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            /* **ĐÃ SỬA:** Căn phải */
+            margin: 0 0 0 auto;
+            padding: 0 50px 30px 50px;
+        }
+
+        .main-footer h3 {
+            color: #FFF; /* Tiêu đề màu trắng */
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Đường kẻ mờ dưới tiêu đề */
+            padding-bottom: 10px;
+        }
+
+        .main-footer p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* ẢNH THANH TOÁN */
+        .payment-methods .payment-images {
+            display: flex;
+            flex-wrap: wrap; /* Cho phép xuống dòng */
+            gap: 5px;
+        }
+
+        .payment-methods .payment-icon {
+            width: 60px; /* Kích thước icon nhỏ */
+            height: auto;
+            background-color: #FFF; /* Nền trắng cho icon thanh toán */
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        /* SOCIAL ICONS */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #b31640; /* Màu đậm hơn một chút so với nền */
+            color: #FFF;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .social-icon:hover {
+            background-color: #FFF;
+            color: #A52A2A; /* Màu nhấn khi hover */
+        }
+
+        /* PHẦN FOOTER BOTTOM (Copyright) */
+        .footer-bottom {
+            background-color: #8c1236; /* Màu nền tối hơn 1 tone */
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: #FFFAFA; /* Màu trắng sáng */
+        }
+
+        .pagination a {
+            color: #A52A2A;
+            padding: 8px 15px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+
+            /* THÊM THUỘC TÍNH NÀY ĐỂ NÚT ĐẬM */
+            font-weight: bold;
+            font-size: 1.1em; /* Tùy chọn: Làm chữ to hơn một chút */
+        }
+
+        .pagination a:hover:not(.disabled) {
+            background-color: #A52A2A;
+            color: white;
+        }
+
+        .pagination a.disabled {
+            color: #ccc;
+            pointer-events: none; /* Không cho phép click */
+            cursor: default;
+            background-color: #eee;
+        }
+
+        /* Responsive cho Footer */
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr; /* Stack các cột trên màn hình nhỏ */
+                padding: 0 20px 30px 20px;
+            }
+        }
+
+        /* Tùy chọn: Thêm CSS cho màn hình nhỏ hơn (Responsive Design) */
+        @media (max-width: 1200px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr); /* Giảm xuống 4 cột */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr); /* Giảm xuống 2 cột trên di động */
+            }
+        }
+
+
+        .filter-group h4 {
+            color: #333;
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Style cho Checkbox và input lọc */
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #CCC;
+        }
+
+        .search-box button {
+            background-color: #6a1706; /* Màu nhấn */
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        /* Style cho Danh mục (Category Filter) */
+        .category-filter a {
+            display: block;
+            text-decoration: none;
+            color: #555;
+            padding: 5px 0;
+            transition: color 0.2s;
+        }
+
+        .category-filter a:hover {
+            color: #A52A2A;
+        }
+
+        .sort-options label {
+            margin-right: 15px;
+        }
+
+        .view-options a {
+            color: #555;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        .view-options a.active {
+            color: #A52A2A; /* Màu nhấn cho chế độ xem đang chọn */
+            font-weight: bold;
+        }
+
+        .product-item:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- CSS CHO TRANG CHI TIẾT SẢN PHẨM --- */
+        .product-detail-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #FFF;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 50px;
+        }
+
+        /* --- Cột Ảnh (Trái) --- */
+        .product-image-area {
+            flex: 0 0 500px; /* Cố định chiều rộng cột ảnh */
+        }
+        .main-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border: 1px solid #EEE;
+            margin-bottom: 10px;
+        }
+
+        /* --- Cột Thông tin (Phải) --- */
+        .product-info-area {
+            flex-grow: 1; /* Chiếm hết phần còn lại */
+        }
+
+        .detail-name {
+            font-size: 2.5em;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .detail-price {
+            font-size: 2.2em;
+            color: #A52A2A; /* Màu nhấn */
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #EEE;
+            padding-bottom: 15px;
+        }
+
+        .description-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .detail-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* --- Khu vực Tùy chọn Mua hàng --- */
+        .purchase-options {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Nút Quantity */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            border: 1px solid #CCC;
+        }
+        .quantity-control button, .quantity-control input {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .quantity-control input {
+            width: 40px;
+            text-align: center;
+            border-left: 1px solid #CCC;
+            border-right: 1px solid #CCC;
+            -moz-appearance: textfield; /* Ẩn mũi tên Chrome/Safari */
+        }
+        .quantity-control input::-webkit-outer-spin-button,
+        .quantity-control input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Nút Mua hàng */
+        .cta-button {
+            transition: background-color 0.3s;
+        }
+        .buy-now-button {
+            background-color: #333; /* Màu đen hoặc màu tối nổi bật hơn */
+            padding: 12px 30px;
+            font-size: 1.1em;
+        }
+        .buy-now-button:hover {
+            background-color: #555;
+        }
+        .add-to-cart-button {
+            background-color: #A52A2A; /* Màu đỏ đô truyền thống */
+            padding: 12px 30px;
+            font-size: 1.1em;
+        }
+        .add-to-cart-button:hover {
+            background-color: #b31640;
+        }
+
+        /* Responsive cho màn hình nhỏ */
+        @media (max-width: 992px) {
+            .product-detail-container {
+                flex-direction: column; /* Xếp ảnh và thông tin dọc */
+                gap: 20px;
+            }
+            .product-image-area {
+                flex: 1 1 auto;
+            }
+        }
+
+        /* --- CSS CHO TRANG THANH TOÁN (CHECKOUT) --- */
+        .checkout-wrapper {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #FFF;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        }
+
+        .checkout-grid {
+            display: grid;
+            /* Chia làm 2 cột: 2 phần cho Form, 1 phần cho Tóm tắt đơn hàng */
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            padding-top: 20px;
+        }
+
+        /* Tiêu đề */
+        .checkout-heading {
+            font-size: 2em;
+            color: #A52A2A;
+            border-bottom: 2px solid #EEE;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        /* --- Cột Form Thông tin (Trái) --- */
+        .form-section h3 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            border-left: 5px solid #A52A2A;
+            padding-left: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 4px;
+            box-sizing: border-box; /* Quan trọng để padding không làm tăng chiều rộng */
+            font-size: 1em;
+        }
+
+        /* --- Cột Tóm tắt Đơn hàng (Phải) --- */
+        .order-summary {
+            background-color: #F8F8F8;
+            padding: 25px;
+            border: 1px solid #EEE;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #DDD;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-total {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #A52A2A;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #A52A2A;
+        }
+
+        /* Danh sách sản phẩm trong Tóm tắt */
+        .summary-products {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .summary-product-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #EEE;
+            display: flex;
+            justify-content: space-between;
+        }
+        .summary-product-info {
+            font-size: 0.9em;
+            color: #555;
+        }
+        .summary-product-name {
+            font-weight: bold;
+            color: #333;
+            display: block;
+        }
+
+        /* Nút Đặt hàng */
+        .place-order-button {
+            width: 100%;
+            background-color: #A52A2A;
+            color: #FFF;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .place-order-button:hover {
+            background-color: #8c1236;
+        }
+
+        /* Phương thức thanh toán radio buttons */
+        .payment-method-options {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #EEE;
+            background-color: #FFF;
+        }
+        .payment-method-options label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .payment-method-options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .checkout-grid {
+                grid-template-columns: 1fr; /* Stack 2 cột thành 1 trên mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 20px 50px;">
+        <div class="logo-and-search" style="display: flex; align-items: center; gap: 40px;">
+            <div class="logo" style="font-size: 1.8em; font-weight: bold; color: #A52A2A;">Veloria</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/}" style="margin-right: 20px; text-decoration: none; color: #333;">Trang Chủ</a>
+            <a th:href="@{/shop}" style="margin-right: 20px; text-decoration: none; color: #333;">Cửa Hàng</a>
+            <a th:href="@{/contact}" style="margin-right: 20px; text-decoration: none; color: #333;">Liên Hệ</a>
+            <a th:href="@{/canhan}" style="margin-right: 20px; text-decoration: none; color: #333;">Cá Nhân</a>
+            <!-- LOGIC MỚI: NÚT QUẢN LÝ -->
+            <!-- Chỉ hiển thị nếu người dùng có vai trò là ADMIN hoặc OWNER -->
+            <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+                <a th:href="@{/admin/home}" style="margin-right: 20px; text-decoration: none; color: #A52A2A; font-weight: bold;">
+                    Quản Lý
+                </a>
+            </div>
+            <!-- KẾT THÚC LOGIC MỚI -->
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" style="display: inline-block;">
+                <span style="margin-right: 15px;">
+                    Xin chào,
+                    <!-- Gán principal vào biến tạm để sử dụng toán tử T() -->
+                    <b th:with="userPrincipal=${#authentication.principal}">
+
+                        <!-- 1. KIỂM TRA: Nếu là OAuth2User (Đăng nhập Google) -->
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}">
+                            <!-- Lấy tên đầy đủ từ thuộc tính 'name' của Google -->
+                        </span>
+
+                        <!-- 2. NGƯỢC LẠI: Nếu là Custom UserDetails (Đăng nhập Form) -->
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}">
+                            <!-- Lấy Principal Name (thường là TenDangNhap hoặc Email) -->
+                        </span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="cta-button" style="background-color: #555;">Đăng xuất</a>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()" style="display: inline-block;">
+                <a th:href="@{/login}" style="margin-right: 15px; text-decoration: none; color: #A52A2A; font-weight: bold;">Đăng nhập</a>
+                <a th:href="@{/register}" class="cta-button">Đăng ký</a>
+            </div>
+
+            <a th:href="@{/cart}" style="margin-left: 20px; text-decoration: none; color: #333;">[🛒 Giỏ hàng]</a>
+            <a th:href="@{/orders}" style="margin-left: 20px; text-decoration: none; color: #333;">
+                [ 📦 Đơn hàng ]
+            </a>
+        </div>
+    </nav>
+</header>
+
+<main class="checkout-wrapper">
+    <h1 class="checkout-heading">Hoàn tất Đơn hàng</h1>
+
+    <div class="checkout-grid">
+        <div class="checkout-form-area">
+            <form th:action="@{/checkout/place-order}" method="post">
+
+                <section class="form-section">
+                    <h3>1. Thông tin Giao hàng</h3>
+
+                    <div class="form-group">
+                        <label for="fullName"><i class="fas fa-user"></i> Họ và Tên</label>
+                        <input type="text" id="fullName" name="fullName" required
+                               placeholder="Nguyễn Văn A"
+                               th:value="${nguoiDung != null ? nguoiDung.hoTen : (#authentication.name)}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Điện thoại</label>
+                        <input type="tel" id="phone" name="phone" required
+                               placeholder="09xx xxx xxx"
+                               th:value="${nguoiDung != null ? nguoiDung.sdt : ''}"> </div>
+
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="email" name="email" required
+                               placeholder="email@example.com"
+                               th:value="${nguoiDung != null ? nguoiDung.email : (#authentication.name)}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address"><i class="fas fa-map-marker-alt"></i> Địa chỉ chi tiết</label>
+                        <textarea id="address" name="address" rows="3" required
+                                  placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố"
+                                  th:text="${nguoiDung != null ? nguoiDung.diaChi : ''}"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="note"><i class="fas fa-comment"></i> Ghi chú (Tùy chọn)</label>
+                        <textarea id="note" name="note" rows="2"
+                                  placeholder="Ví dụ: Giao hàng ngoài giờ hành chính, gọi điện trước khi giao"></textarea>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h3>2. Phương thức Thanh toán</h3>
+
+                    <div class="payment-method-options">
+                        <label>
+                            <input type="radio" name="paymentMethod" value="COD" checked>
+                            <i class="fas fa-money-bill-wave"></i> Thanh toán khi nhận hàng (COD)
+                        </label>
+
+                        <label>
+                            <input type="radio" name="paymentMethod" value="Transfer">
+                            <i class="fas fa-credit-card"></i> Chuyển khoản Ngân hàng
+                        </label>
+
+                        <label>
+                            <input type="radio" name="paymentMethod" value="Online">
+                            <i class="fas fa-wallet"></i> Thanh toán Online (VNPay, Momo,...)
+                        </label>
+                    </div>
+                </section>
+                <button type="submit" class="place-order-button">HOÀN TẤT ĐẶT HÀNG</button>
+            </form>
+        </div>
+
+        <div class="order-summary">
+            <h3>Tóm tắt Đơn hàng</h3>
+
+            <ul class="summary-products">
+                <li class="summary-product-item" th:each="item : ${cartItems}">
+                    <div>
+                        <span class="summary-product-name" th:text="${item.product.tenSanPham}">Nước Hoa Boitown</span>
+                        <span class="summary-product-info" th:text="'SL: ' + ${item.quantity}">SL: 1</span>
+                    </div>
+                    <span th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' đ'">200.000 đ</span>
+                </li>
+            </ul>
+
+            <div class="summary-item">
+                <span>Tạm tính</span>
+                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">900.000 đ</span>
+            </div>
+
+            <div class="summary-item">
+                <span>Phí Vận chuyển</span>
+                <span style="color: green;">Miễn phí</span>
+            </div>
+
+            <div class="summary-item summary-total">
+                <span>Tổng cộng</span>
+                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">900.000 đ</span>
+            </div>
+
+            <p style="font-size: 0.9em; margin-top: 15px; color: #888;">
+                Bằng cách nhấp vào "Hoàn tất Đặt hàng", bạn đồng ý với các Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi.
+            </p>
+        </div>
+    </div>
+</main>
+
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column payment-methods">
+            <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <div class="payment-images">
+                <img th:src="@{/visa.jpg}" alt="Visa" class="payment-icon">
+                <img th:src="@{/mastercard.jpg}" alt="Mastercard" class="payment-icon">
+                <img th:src="@{/jcb.jpg}" alt="JCB" class="payment-icon">
+                <img th:src="@{/tienmat.jpg}" alt="ATM" class="payment-icon">
+                <img th:src="@{/bank.jpg}" alt="Internet Banking" class="payment-icon">
+                <img th:src="@{/vnpay.jpg}" alt="VNPay" class="payment-icon">
+            </div>
+        </div>
+
+        <div class="footer-column social-connect">
+            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon google-map"><i class="fas fa-map-marker-alt"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-column contact-info">
+            <h3>THÔNG TIN LIÊN HỆ</h3>
+            <p><strong>Hộ Kinh doanh:</strong> VELORIA PARFUMERIE</p>
+            <p><strong>Số ĐKKD:</strong> UBND Quận 8, TPHCM</p>
+            <p><strong>Địa chỉ:</strong> P5, Q.8, TPHCM</p>
+            <p><strong>Điện thoại:</strong> 08888 09999</p>
+            <p><strong>Email:</strong> info@veloria.vn</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Veloria Parfum Shop. Cung cấp bởi Veloria</p>
+    </div>
+</footer>
+</body>
+</html>

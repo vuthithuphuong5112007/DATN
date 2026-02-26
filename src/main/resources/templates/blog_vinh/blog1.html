@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Thư Viện Mùi Hương | Veloria</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        /* --- RESET & BASIC --- */
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #F8F8F8;
+            color: #333;
+            margin: 0;
+        }
+
+        /* --- HEADER TỐI ƯU --- */
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 0 30px; /* Giảm padding một chút để tăng không gian chứa chữ */
+            height: 85px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+            text-decoration: none;
+            white-space: nowrap; /* Đảm bảo logo không xuống dòng */
+            margin-right: 20px;
+        }
+
+        /* Menu chính - Ngăn xuống dòng */
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap; /* QUAN TRỌNG: Ngăn chữ trong menu xuống dòng */
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #A52A2A;
+        }
+
+        .auth-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap; /* QUAN TRỌNG: Ngăn tên người dùng/nút xuống dòng */
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background-color: #555;
+            color: #FFF !important;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            background-color: #A52A2A;
+            color: #FFF;
+            padding: 8px 18px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Giỏ hàng & Đơn hàng - Ngăn xuống dòng */
+        .cart-orders {
+            display: flex;
+            gap: 12px;
+            margin-left: 10px;
+            border-left: 1px solid #EEE;
+            padding-left: 15px;
+            white-space: nowrap; /* QUAN TRỌNG: Ngăn icon và chữ tách nhau */
+        }
+
+        .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cart-orders a:hover {
+            color: #A52A2A;
+        }
+
+        /* Dropdown cá nhân */
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background-color: #FFF;
+            min-width: 150px;
+            right: 0;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 5px 0;
+        }
+        .user-dropdown:hover .dropdown-content { display: block; }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #F8F8F8;
+            color: #A52A2A;
+        }
+
+        /* --- BLOG CONTENT --- */
+        .blog-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 40px 60px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .blog-title {
+            font-size: 2.6em;
+            color: #A52A2A;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .blog-meta {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #EEE;
+            padding-bottom: 15px;
+        }
+
+        .blog-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .blog-content {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+        }
+
+        .blog-content h2 {
+            color: #333;
+            margin-top: 40px;
+        }
+
+        blockquote {
+            border-left: 4px solid #A52A2A;
+            padding-left: 20px;
+            font-style: italic;
+            color: #666;
+            margin: 30px 0;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            color: #FFF;
+            background: #A52A2A;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #802020;
+        }
+
+        /* --- FOOTER --- */
+        .main-footer {
+            background-color: #A52A2A;
+            color: #FFF;
+            padding-top: 50px;
+            margin-top: 80px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 50px 30px 50px;
+        }
+
+        .main-footer h3 {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* ẢNH THANH TOÁN */
+        .payment-methods .payment-images {
+            display: flex;
+            flex-wrap: wrap; /* Cho phép xuống dòng */
+            gap: 5px;
+        }
+
+        .payment-methods .payment-icon {
+            width: 60px; /* Kích thước icon nhỏ */
+            height: auto;
+            background-color: #FFF; /* Nền trắng cho icon thanh toán */
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        /* SOCIAL ICONS */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #b31640; /* Màu đậm hơn một chút so với nền */
+            color: #FFF;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .social-icon:hover {
+            background-color: #FFF;
+            color: #A52A2A; /* Màu nhấn khi hover */
+        }
+
+        .footer-bottom {
+            background-color: rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria</a>
+
+        <div class="nav-links">
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+
+            <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+                <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
+            </div>
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+            </div>
+
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
+
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- BLOG -->
+<main class="blog-container">
+
+    <h1 class="blog-title">
+        “Thư Viện Mùi Hương” – Món Quà Đặc Biệt Dành cho Phái Đẹp
+    </h1>
+
+    <div class="blog-meta">
+        Đăng bởi <b>Veloria</b> • 16/11/2025
+    </div>
+
+    <img src="/nuochoa8.jpg" alt="Thư Viện Mùi Hương" class="blog-image">
+
+    <div class="blog-content">
+
+
+        <p>
+            Có người từng nói:
+            <em>“Nước hoa là món trang sức cuối cùng bạn khoác lên người trước khi bước ra khỏi cửa,
+                nhưng lại là thứ đầu tiên người ta nhớ về bạn khi bạn rời đi.”</em>
+        </p>
+
+        <p>
+            Nếu cuộc đời mỗi người phụ nữ là một cuốn sách, thì mùi hương chính là những dòng chữ vô hình
+            nhưng đầy sức gợi. Chào mừng bạn đến với
+            <strong>"Thư Viện Mùi Hương"</strong> – nơi chúng mình không chỉ bán những chai nước hoa,
+            mà còn giúp bạn viết nên câu chuyện của chính mình.
+        </p>
+
+        <h2>1. Tại sao gọi là "Thư viện"?</h2>
+
+        <p>
+            Khác với những cửa hàng mỹ phẩm ồn ào,
+            <strong>"Thư Viện Mùi Hương"</strong> là một không gian của sự tĩnh lặng và chiêm nghiệm.
+            Tại đây, mỗi mùi hương được phân loại như một chương sách:
+        </p>
+
+        <ul>
+            <li>
+                <strong>Chương Thanh Xuân:</strong>
+                Với những nốt hương hoa cỏ (Floral) trong trẻo, nhẹ nhàng như buổi sớm mai.
+            </li>
+            <li>
+                <strong>Chương Quyến Rũ:</strong>
+                Nơi ngự trị của xạ hương (Musk) và hổ phách (Amber) đầy bí ẩn, nồng nàn.
+            </li>
+            <li>
+                <strong>Chương Tự Do:</strong>
+                Những nốt hương gỗ (Woody) và cam chanh (Citrus) phóng khoáng, hiện đại.
+            </li>
+        </ul>
+
+        <h2>2. Món quà thay lời muốn nói</h2>
+
+        <p>
+            Phụ nữ thường rất nhạy cảm với mùi hương vì nó gắn liền trực tiếp với vùng não lưu trữ ký ức.
+            Tặng một nhành hoa có thể héo, tặng một món đồ trang sức có thể cũ,
+            nhưng tặng một mùi hương đặc trưng là bạn đang tặng họ một
+            <strong>"ký ức định danh"</strong>.
+        </p>
+
+        <p>
+            Khi bạn dành tặng người phụ nữ thân yêu một chai nước hoa từ
+            <strong>"Thư Viện"</strong>, đó không chỉ là món quà vật chất.
+            Đó là lời nhắn nhủ:
+            <em>“Tôi trân trọng phong cách của bạn,
+                và tôi muốn lưu giữ dấu ấn của bạn trong tim mình.”</em>
+        </p>
+
+        <h2>3. Cách chọn "cuốn sách mùi hương" phù hợp cho nàng</h2>
+
+        <p>
+            Để chọn được món quà ưng ý nhất tại Thư viện,
+            hãy thử quan sát tính cách của cô ấy nhé:
+        </p>
+
+        <ul>
+            <li>
+                <strong>Cô gái dịu dàng, lãng mạn:</strong>
+                Hãy chọn những nhóm hương hoa hồng, hoa nhài hoặc hoa mẫu đơn.
+            </li>
+            <li>
+                <strong>Quý cô sang trọng, quyền lực:</strong>
+                Những dòng nước hoa Niche với nốt hương gỗ đàn hương hoặc hoắc hương
+                sẽ là lựa chọn hoàn hảo.
+            </li>
+            <li>
+                <strong>Cô nàng năng động, trẻ trung:</strong>
+                Đừng bỏ qua hương trái cây nhiệt đới hoặc hương biển thanh khiết.
+            </li>
+        </ul>
+
+        <h2>4. Trải nghiệm cá nhân hóa – "Đọc" mùi hương theo cách của bạn</h2>
+
+        <p>
+            Tại <strong>"Thư Viện Mùi Hương"</strong>,
+            chúng mình tin rằng không có mùi hương nào là <em>"tốt nhất"</em>,
+            chỉ có mùi hương <em>"phù hợp nhất"</em>.
+        </p>
+
+        <p>
+            Chúng mình khuyến khích các bạn ghé thăm,
+            để khứu giác dẫn lối và tìm thấy bản sao tâm hồn mình
+            ẩn mình trong những lọ thủy tinh tinh tế.
+        </p>
+
+        <blockquote>
+            Hãy để mỗi ngày trôi qua là một trang sách ngát hương.
+            Đừng chỉ xịt nước hoa để thơm,
+            hãy xịt nước hoa để kể câu chuyện về
+            người phụ nữ tuyệt vời mà bạn đang là.
+        </blockquote>
+
+        <p>
+            <strong>Bạn đã sẵn sàng tìm thấy "tựa sách" dành riêng cho mình chưa?</strong>
+        </p>
+
+    </div>
+
+
+    <a th:href="@{/sanpham}" class="back-btn">
+        Tiến đến mua sắm nào! →
+    </a>
+
+</main>
+
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column payment-methods">
+            <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <div class="payment-images">
+                <img th:src="@{/visa.jpg}" alt="Visa" class="payment-icon">
+                <img th:src="@{/mastercard.jpg}" alt="Mastercard" class="payment-icon">
+                <img th:src="@{/jcb.jpg}" alt="JCB" class="payment-icon">
+                <img th:src="@{/tienmat.jpg}" alt="ATM" class="payment-icon">
+                <img th:src="@{/bank.jpg}" alt="Internet Banking" class="payment-icon">
+                <img th:src="@{/vnpay.jpg}" alt="VNPay" class="payment-icon">
+            </div>
+        </div>
+
+        <div class="footer-column social-connect">
+            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon google-map"><i class="fas fa-map-marker-alt"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-column contact-info">
+            <h3>THÔNG TIN LIÊN HỆ</h3>
+            <p><strong>Hộ Kinh doanh:</strong> VELORIA PARFUMERIE</p>
+            <p><strong>Số ĐKKD:</strong> UBND Quận 8, TPHCM</p>
+            <p><strong>Địa chỉ:</strong> P5, Q.8, TPHCM</p>
+            <p><strong>Điện thoại:</strong> 08888 09999</p>
+            <p><strong>Email:</strong> info@veloria.vn</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Veloria Parfum Shop. Cung cấp bởi Veloria</p>
+    </div>
+</footer>
+
+</body>
+</html>

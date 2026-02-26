@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng | Shop Nước Hoa</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        /* CSS cơ bản để demo phong cách tối giản */
+        body { font-family: 'Times New Roman', serif; background-color: #F8F8F8; color: #333; margin: 0; }
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 0 50px; /* Tăng padding hai bên đầu trang */
+            height: 90px;   /* Tăng chiều cao header cho thoáng */
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center; /* Căn giữa tất cả theo chiều dọc */
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+            text-decoration: none;
+            margin-right: 60px; /* Tạo khoảng trống 60px giữa Logo và Menu */
+            flex-shrink: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px; /* Khoảng cách giữa các mục Trang chủ, Cửa hàng... */
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap; /* Giúp dòng "Xin chào..." không bị xuống dòng */
+        }
+
+        .nav-links a, .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover { color: #A52A2A; }
+
+        .auth-area {
+            margin-left: auto; /* PHÉP MÀU: Tự động chiếm hết khoảng trống bên trái để đẩy mình sang phải */
+            display: flex;
+            align-items: center;
+            gap: 25px; /* Khoảng cách giữa cụm tên và cụm giỏ hàng */
+            flex-shrink: 0;
+        }
+
+        .cart-orders {
+            display: flex;
+            gap: 20px;
+            border-left: 1px solid #EEE;
+            padding-left: 20px;
+            align-items: center;
+        }
+
+        .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .section-title {
+            text-align: center; /* Căn giữa */
+            font-size: 2.2em; /* Kích thước chữ lớn hơn */
+            font-weight: bold; /* Làm đậm */
+            color: #333; /* Màu chữ tối */
+            text-transform: uppercase; /* Chữ hoa toàn bộ */
+            margin-top: 60px; /* Khoảng cách với phần trên */
+            margin-bottom: 40px; /* Khoảng cách với phần dưới */
+            letter-spacing: 2px; /* Tăng khoảng cách giữa các chữ cái */
+            position: relative; /* Quan trọng để dùng cho pseudo-element */
+            padding-bottom: 15px; /* Tạo không gian cho đường kẻ dưới */
+        }
+
+        /* Thêm đường kẻ dưới cho tiêu đề để trông sang trọng hơn */
+        .section-title::after {
+            content: ''; /* Bắt buộc phải có */
+            display: block; /* Để đường kẻ có chiều rộng */
+            width: 80px; /* Chiều rộng của đường kẻ */
+            height: 3px; /* Độ dày của đường kẻ */
+            background-color: #A52A2A; /* Màu đường kẻ (màu nhấn của bạn) */
+            margin: 10px auto 0 auto; /* Căn giữa đường kẻ và đẩy xuống dưới chữ */
+            border-radius: 2px; /* Bo tròn góc đường kẻ (tùy chọn) */
+        }
+
+        .article-meta .author {
+            color: #A52A2A; /* Tên tác giả dùng màu nhấn */
+            font-weight: bold;
+        }
+
+        .main-footer {
+            background-color: #A52A2A; /* Màu đỏ hồng đậm, màu nhấn của bạn */
+            color: #FFF;
+            padding-top: 50px;
+        }
+
+        .footer-container {
+            display: grid;
+            /* Chia 3 cột bằng nhau */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            /* **ĐÃ SỬA:** Căn phải */
+            margin: 0 auto;
+            padding: 0 50px 30px 50px;
+        }
+
+        .main-footer h3 {
+            color: #FFF; /* Tiêu đề màu trắng */
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Đường kẻ mờ dưới tiêu đề */
+            padding-bottom: 10px;
+        }
+
+        .main-footer p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* ẢNH THANH TOÁN */
+        .payment-methods .payment-images {
+            display: flex;
+            flex-wrap: wrap; /* Cho phép xuống dòng */
+            gap: 5px;
+        }
+
+        .payment-methods .payment-icon {
+            width: 60px; /* Kích thước icon nhỏ */
+            height: auto;
+            background-color: #FFF; /* Nền trắng cho icon thanh toán */
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        /* SOCIAL ICONS */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #b31640; /* Màu đậm hơn một chút so với nền */
+            color: #FFF;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .social-icon:hover {
+            background-color: #FFF;
+            color: #A52A2A; /* Màu nhấn khi hover */
+        }
+
+        /* PHẦN FOOTER BOTTOM (Copyright) */
+        .footer-bottom {
+            background-color: #8c1236; /* Màu nền tối hơn 1 tone */
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: #FFFAFA; /* Màu trắng sáng */
+        }
+        .pagination a {
+            color: #A52A2A;
+            padding: 8px 15px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+
+            /* THÊM THUỘC TÍNH NÀY ĐỂ NÚT ĐẬM */
+            font-weight: bold;
+            font-size: 1.1em; /* Tùy chọn: Làm chữ to hơn một chút */
+        }
+
+        .pagination a:hover:not(.disabled) {
+            background-color: #A52A2A;
+            color: white;
+        }
+
+        .pagination a.disabled {
+            color: #ccc;
+            pointer-events: none; /* Không cho phép click */
+            cursor: default;
+            background-color: #eee;
+        }
+
+        /* Responsive cho Footer */
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr; /* Stack các cột trên màn hình nhỏ */
+                padding: 0 20px 30px 20px;
+            }
+        }
+
+        /* Tùy chọn: Thêm CSS cho màn hình nhỏ hơn (Responsive Design) */
+        @media (max-width: 1200px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr); /* Giảm xuống 4 cột */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr); /* Giảm xuống 2 cột trên di động */
+            }
+        }
+
+        /* Logic CSS cho hover */
+        .user-dropdown:hover .dropdown-content {
+            display: block !important;
+        }
+
+        /* Hiệu ứng hover cho các mục con */
+        .dropdown-content a:hover {
+            background-color: #e9e9e9;
+            color: #A52A2A;
+        }
+
+        .cart-details-area {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #FFF;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* 2. Style cho bảng danh sách sản phẩm */
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .cart-table th {
+            background-color: #f9f9f9;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #EEE;
+            color: #555;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .cart-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #EEE;
+            vertical-align: middle;
+        }
+
+        /* Style cho input số lượng */
+        .cart-table input[type="number"] {
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .cart-table input[type="number"]:focus {
+            border-color: #A52A2A;
+        }
+
+        /* Nút xóa sản phẩm */
+        .btn-danger {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .btn-danger:hover {
+            color: #ff4d4d;
+        }
+
+        /* 3. Khu vực tổng tiền và thanh toán */
+        .cart-summary {
+            text-align: right;
+            padding: 30px;
+            background: #fcfcfc;
+            border-radius: 8px;
+        }
+
+        .cart-summary h3 {
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .total-price {
+            color: #A52A2A;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .checkout-button {
+            background-color: #A52A2A;
+            color: #FFF;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .checkout-button:hover {
+            background-color: #8c1236;
+            transform: translateY(-2px);
+        }
+
+        /* 4. Style khi giỏ hàng trống */
+        .empty-cart {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .empty-cart i {
+            font-size: 80px;
+            color: #EEE;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart h2 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .empty-cart a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #A52A2A;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #A52A2A;
+            padding: 10px 25px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .empty-cart a:hover {
+            background-color: #A52A2A;
+            color: #FFF;
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria</a>
+
+        <div class="nav-links">
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+
+            <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+                <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
+            </div>
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+            </div>
+
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
+
+                <a th:href="@{/cart}"><i class="fas fa-shopping-bag" style="color:#A52A2A"></i> Giỏ hàng &rarr;</a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div th:if="${cartItems == null || #lists.isEmpty(cartItems)}" class="empty-cart text-center p-5">
+
+    <i class="fas fa-shopping-bag"></i>
+
+    <h2>Giỏ hàng của bạn đang trống!</h2>
+    <p>Hình như bạn chưa chọn sản phẩm nào. Hãy cùng chúng tôi khám phá những sản phẩm tuyệt vời nhé.</p>
+
+    <a th:href="@{/sanpham}">
+        <i class="fas fa-arrow-right"></i> Tiếp tục mua sắm
+    </a>
+</div>
+
+<div th:unless="${cartItems == null || #lists.isEmpty(cartItems)}" class="cart-details-area">
+
+    <h2 class="section-title">Chi Tiết Giỏ Hàng</h2>
+
+    <table class="table table-bordered cart-table">
+        <thead>
+        <tr>
+            <th><input type="checkbox" id="checkAll" onchange="checkAllItems(this)"></th> <th>Ảnh</th>
+            <th>Tên Sản Phẩm</th>
+            <th>Giá</th>
+            <th>Số Lượng</th>
+            <th>Thành Tiền</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${cartItems}">
+            <td>
+                <input type="checkbox"
+                       class="item-checkbox"
+                       checked
+                       onchange="updateCartTotal()"
+                       th:data-id="${item.product.idSanPham}">
+            </td>
+            <td>
+                <img th:src="@{'/' + ${item.product.duongDanAnh}}" style="width: 80px; height: 80px; object-fit: cover;" alt="Sản phẩm"/>
+            </td>
+            <td th:text="${item.product.tenSanPham}">Nước hoa A</td>
+
+            <td th:id="'price-' + ${item.product.idSanPham}"
+                th:data-price="${item.price}"
+                th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">1.000.000 đ</td>
+            <td>
+                <input type="number"
+                       th:value="${item.quantity}"
+                       style="width: 60px; text-align: center;"
+                       min="1" max="99"
+
+                       th:onchange="|updateCartQuantity(${item.product.idSanPham}, this.value)|"
+
+                       th:id="'qty-' + ${item.product.idSanPham}"
+                />
+            </td>
+
+            <td th:id="'subtotal-' + ${item.product.idSanPham}"
+                th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' đ'">2.000.000 đ</td>
+
+            <td>
+                <a th:href="@{/cart/remove/{id}(id=${item.product.idSanPham})}" class="btn btn-danger btn-sm">Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="cart-summary">
+        <h3 style="text-align: right;">
+            Tổng Cộng (Các mục đã chọn): 
+            <span class="total-price" id="finalTotalPrice">
+                0 đ
+            </span>
+        </h3>
+        <button type="button" onclick="goToCheckout()" class="btn btn-success checkout-button">
+            Tiến hành Thanh toán
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // Hàm format tiền tệ (giúp hiển thị đẹp hơn)
+    function formatCurrency(number) {
+        return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    }
+
+    /**
+     * Hàm chính: Tính toán lại Tổng tiền dựa trên các mục đã chọn.
+     */
+    function updateCartTotal() {
+        let finalTotal = 0;
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+
+        checkboxes.forEach(checkbox => {
+            const productId = checkbox.getAttribute('data-id');
+            const priceElement = document.getElementById('price-' + productId);
+            const qtyElement = document.getElementById('qty-' + productId);
+            const subtotalElement = document.getElementById('subtotal-' + productId);
+
+            // 1. Lấy giá trị
+            const price = parseFloat(priceElement.getAttribute('data-price'));
+            const quantity = parseInt(qtyElement.value);
+
+            // Tính toán thành tiền của dòng
+            const subtotal = price * quantity;
+
+            // Cập nhật Thành Tiền cho dòng đó (luôn cập nhật)
+            subtotalElement.textContent = formatCurrency(subtotal);
+
+            // 2. Kiểm tra nếu mục được chọn thì mới cộng vào Tổng cuối cùng
+            if (checkbox.checked) {
+                finalTotal += subtotal;
+            }
+        });
+
+        // 3. Cập nhật tổng tiền cuối cùng
+        document.getElementById('finalTotalPrice').textContent = formatCurrency(finalTotal);
+    }
+
+    /**
+     * Hàm xử lý khi thay đổi số lượng
+     * Lưu ý: Hàm này chỉ cập nhật giá trị trên giao diện.
+     * Logic AJAX/Controller để cập nhật Session sẽ cần được thêm sau.
+     */
+    function updateCartQuantity(productId, newQuantity) {
+        // Tạm thời chỉ gọi hàm tính toán lại tổng tiền trên giao diện
+        updateCartTotal();
+
+        // ⚠️ LOGIC CẬP NHẬT SESSION THỰC TẾ SẼ ĐƯỢC GỌI TẠI ĐÂY (AJAX POST request)
+        updateSessionCart(productId, newQuantity);
+    }
+
+    function goToCheckout() {
+        const selectedIds = [];
+        const checkboxes = document.querySelectorAll('.item-checkbox:checked'); // CHỈ LẤY CÁC CHECKBOX ĐÃ TÍCH
+
+        if (checkboxes.length === 0) {
+            alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+            return;
+        }
+
+        // Thu thập ID của các sản phẩm đã chọn
+        checkboxes.forEach(checkbox => {
+            const productId = checkbox.getAttribute('data-id');
+            const quantity = document.getElementById('qty-' + productId).value; // Lấy số lượng hiện tại
+
+            // Gửi cả ID và Số lượng dưới dạng chuỗi (Ví dụ: 15-2, 10-1)
+            selectedIds.push(productId + '-' + quantity);
+        });
+
+        // Tạo URL chuyển hướng (Server sẽ xử lý chuỗi này)
+        const url = '/checkout?items=' + selectedIds.join(',');
+
+        // Chuyển hướng trình duyệt
+        window.location.href = url;
+    }
+    /**
+     * Hàm tích/bỏ tích tất cả
+     */
+    function checkAllItems(source) {
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = source.checked;
+        });
+        updateCartTotal(); // Gọi lại tính toán tổng tiền sau khi tích/bỏ tích tất cả
+    }
+
+    // Khởi tạo tổng tiền khi trang vừa tải xong
+    window.onload = function() {
+        updateCartTotal();
+    };
+</script>
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column payment-methods">
+            <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <div class="payment-images">
+                <img th:src="@{/visa.jpg}" alt="Visa" class="payment-icon">
+                <img th:src="@{/mastercard.jpg}" alt="Mastercard" class="payment-icon">
+                <img th:src="@{/jcb.jpg}" alt="JCB" class="payment-icon">
+                <img th:src="@{/tienmat.jpg}" alt="ATM" class="payment-icon">
+                <img th:src="@{/bank.jpg}" alt="Internet Banking" class="payment-icon">
+                <img th:src="@{/vnpay.jpg}" alt="VNPay" class="payment-icon">
+            </div>
+        </div>
+
+        <div class="footer-column social-connect">
+            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon google-map"><i class="fas fa-map-marker-alt"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-column contact-info">
+            <h3>THÔNG TIN LIÊN HỆ</h3>
+            <p><strong>Hộ Kinh doanh:</strong> VELORIA PARFUMERIE</p>
+            <p><strong>Số ĐKKD:</strong> UBND Quận 8, TPHCM</p>
+            <p><strong>Địa chỉ:</strong> P5, Q.8, TPHCM</p>
+            <p><strong>Điện thoại:</strong> 08888 09999</p>
+            <p><strong>Email:</strong> info@veloria.vn</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Veloria Parfum Shop. Cung cấp bởi Veloria</p>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chính | Shop Nước Hoa</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/style.css" th:href="@{/css/style.css}">
+
+
+    <style>
+
+        /* ===== RESET NHẸ ===== */
+        body {
+            font-family: 'Times New Roman', serif;
+            background: #F8F8F8;
+            margin: 0;
+            color: #333;
+        }
+
+        /* ================= HEADER ================= */
+        /* HEADER */
+            .header {
+                background: #FFF;
+                border-bottom: 1px solid #EEE;
+                padding: 0 30px;
+                height: 85px;
+                display: flex;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            }
+
+            /* CONTAINER TRONG HEADER */
+            .nav-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            /* LOGO */
+            .logo {
+                font-size: 1.8em;
+                font-weight: bold;
+                color: #A52A2A;
+                text-decoration: none;
+                white-space: nowrap;
+                margin-right: 20px;
+            }
+
+            /* MENU */
+            .nav-links {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+                justify-content: center;
+                white-space: nowrap;
+            }
+
+            .nav-links a {
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                font-size: 15px;
+                transition: color 0.3s;
+            }
+
+            .nav-links a:hover {
+                color: #A52A2A;
+            }
+
+            /* KHU VỰC LOGIN + CART */
+            .auth-area {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                white-space: nowrap;
+            }
+
+            /* USER INFO */
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+            }
+
+            /* NÚT LOGOUT */
+            .logout-btn {
+                background-color: #555;
+                color: #FFF !important;
+                padding: 6px 12px;
+                border-radius: 4px;
+                text-decoration: none;
+                font-size: 13px;
+            }
+
+            .logout-btn:hover {
+                opacity: 0.8;
+            }
+
+            /* LOGIN BUTTON */
+            .cta-button {
+                background-color: #A52A2A;
+                color: #FFF;
+                padding: 8px 18px;
+                text-decoration: none;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+
+            /* CART + ORDERS */
+            .cart-orders {
+                display: flex;
+                gap: 12px;
+                margin-left: 10px;
+                border-left: 1px solid #EEE;
+                padding-left: 15px;
+                white-space: nowrap;
+            }
+
+            .cart-orders a {
+                text-decoration: none;
+                color: #333;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .cart-orders a:hover {
+                color: #A52A2A;
+            }
+        /* ================= PRODUCT DETAIL ================= */
+        .product-detail-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background: #FFF;
+            padding: 30px;
+            display: flex;
+            gap: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .product-image-area {
+            flex: 0 0 450px;
+        }
+
+        .main-image {
+            width: 100%;
+            border: 1px solid #EEE;
+        }
+
+        .product-info-area {
+            flex: 1;
+        }
+
+        .detail-name {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .detail-price {
+            font-size: 2em;
+            color: #A52A2A;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .description-title {
+            margin-top: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* ================= PURCHASE ================= */
+        .purchase-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .quantity-control {
+            display: flex;
+            border: 1px solid #CCC;
+        }
+
+        .quantity-control button,
+        .quantity-control input {
+            border: none;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .quantity-control input {
+            width: 40px;
+            border-left: 1px solid #CCC;
+            border-right: 1px solid #CCC;
+        }
+
+        /* BUTTONS */
+        .cta-button {
+            background: #A52A2A;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: #b31640;
+        }
+
+        .buy-now-button {
+            background: #333;
+        }
+
+        .buy-now-button:hover {
+            background: #555;
+        }
+
+        /* ================= REVIEW ================= */
+        .container {
+            max-width: 1200px;
+            margin: 60px auto;
+            background: #FFF;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+
+        .review-title {
+            font-size: 1.6em;
+            color: #A52A2A;
+            margin-bottom: 20px;
+        }
+
+        #stars {
+            font-size: 28px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        #stars span {
+            margin-right: 5px;
+            color: #ccc;
+            transition: 0.2s;
+        }
+
+        #stars span.active {
+            color: #f5a623;
+        }
+
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: #f1f1f1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .review-submit {
+            margin-top: 15px;
+            background: #A52A2A;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .review-submit:hover {
+            background: #b31640;
+        }
+
+        /* ================= REVIEW LIST ================= */
+        .review-list {
+            margin-top: 40px;
+        }
+
+        .review-item {
+            background: #fafafa;
+            border-left: 4px solid #A52A2A;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+
+        .review-item strong {
+            color: #A52A2A;
+        }
+
+        .no-reviews {
+            text-align: center;
+            color: #999;
+        }
+
+        /* FOOTER */
+        .main-footer {
+            background-color: #A52A2A;
+            color: #FFF;
+            padding-top: 50px;
+            margin-top: 80px;
+        }
+
+        /* BỐ CỤC FOOTER */
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 50px 30px 50px;
+        }
+
+        /* TIÊU ĐỀ TRONG FOOTER */
+        .main-footer h3 {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* ICON THANH TOÁN */
+        .payment-methods .payment-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .payment-methods .payment-icon {
+            width: 60px;
+            height: auto;
+            background-color: #FFF;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        /* SOCIAL ICON */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #b31640;
+            color: #FFF;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .social-icon:hover {
+            background-color: #FFF;
+            color: #A52A2A;
+        }
+
+        /* PHẦN BOTTOM */
+        .footer-bottom {
+            background-color: rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.85em;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria</a>
+
+        <div class="nav-links">
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+
+            <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+                <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
+            </div>
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+            </div>
+
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
+
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="product-detail-container">
+        <div class="product-image-area">
+            <img th:src="@{'/' + ${product.duongDanAnh}}"
+                 th:alt="${product.tenSanPham}"
+                 class="main-image"/>
+        </div>
+
+        <div class="product-info-area">
+            <h1 class="detail-name" th:text="${product.tenSanPham}">Tên Sản Phẩm</h1>
+
+            <p class="detail-price" th:text="${#numbers.formatDecimal(product.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">Giá</p>
+
+            <form th:action="@{/cart/add}" method="post" style="margin-bottom: 20px;">
+                <input type="hidden" name="id" th:value="${product.idSanPham}" />
+
+                <div class="purchase-options">
+                    <div class="quantity-control">
+                        <button type="button" onclick="decrementQuantity(this)"><i class="fas fa-minus"></i></button>
+                        <input type="number" name="quantity" id="quantityInput" value="1" min="1" max="99" required/>
+                        <button type="button" onclick="incrementQuantity(this)"><i class="fas fa-plus"></i></button>
+                    </div>
+
+                    <button type="submit" class="cta-button add-to-cart-button">
+                        <i class="fas fa-shopping-cart"></i> Thêm vào Giỏ hàng
+                    </button>
+
+                    <a th:href="@{/checkout/buy-now(productId=${product.idSanPham}, quantity=1)}"
+                       class="cta-button buy-now-button"
+                       id="buyNowButton"
+                       th:data-product-id="${product.idSanPham}" >
+                        <i class="fas fa-money-check-alt"></i> Thanh toán ngay
+                    </a>
+                </div>
+            </form>
+
+            <h3 class="description-title">Mô tả Sản phẩm</h3>
+            <div class="detail-description" th:utext="${product.moTa}">Mô tả chi tiết sản phẩm...</div>
+
+            <h3 class="description-title">Thông tin khác</h3>
+            <ul>
+                <li th:if="${product.danhMuc != null}"><b>Danh mục:</b> <span th:text="${product.danhMuc.tenDanhMuc}"></span></li>
+                <li><b>Trạng thái:</b>
+                    <span th:text="${product.soLuongTon > 0} ? 'Còn hàng' : 'Hết hàng'"
+                          th:style="${product.soLuongTon > 0} ? 'color: green;' : 'color: red;'"></span>
+                </li>
+                <li><b>Số lượng trong kho:</b> <span th:text="${product.soLuongTon}"></span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <!-- FORM -->
+        <h2 class="review-title">Đánh giá sản phẩm</h2>
+
+        <div id="stars">
+            <span data-star="1">☆</span>
+            <span data-star="2">☆</span>
+            <span data-star="3">☆</span>
+            <span data-star="4">☆</span>
+            <span data-star="5">☆</span>
+        </div>
+
+        <div class="tag-group">
+            <span class="tag" data-tag="Chất lượng sản phẩm tuyệt vời">Chất lượng sản phẩm tuyệt vời</span>
+            <span class="tag" data-tag="Đóng gói chắc chắn">Đóng gói chắc chắn</span>
+            <span class="tag" data-tag="Giao hàng nhanh">Giao hàng nhanh</span>
+            <span class="tag" data-tag="Rất đáng tiền">Rất đáng tiền</span>
+        </div>
+
+        <textarea id="reviewText"
+                  placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm nhé"
+                  maxlength="50"></textarea>
+
+        <p><span id="charCount">0</span>/50 ký tự</p>
+
+        <button class="review-submit" onclick="submitReview()">Gửi đánh giá</button>
+
+        <!-- LIST -->
+        <div class="review-list">
+
+            <h2 class="review-title" style="margin-top:40px;">
+                Đánh giá từ khách hàng
+            </h2>
+
+            <div id="reviewsContainer">
+                <div class="no-reviews">
+                    <p>Chưa có đánh giá nào</p>
+                    <p>Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    let reviews = [];
+    let selectedRating = 0;
+    let selectedTags = [];
+    let selectedImages = [];
+    let quantityInput, buyNowButton, productId;
+    let reviewsStorageKey = 'productReviews';
+
+    // Khởi tạo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lấy các phần tử DOM
+        quantityInput = document.getElementById('quantityInput');
+        buyNowButton = document.getElementById('buyNowButton');
+        productId = buyNowButton ? buyNowButton.getAttribute('data-product-id') : null;
+
+        // Key lưu đánh giá theo từng sản phẩm trong localStorage
+        if (productId) {
+            reviewsStorageKey = 'productReviews_' + productId;
+        }
+
+        // Load đánh giá từ localStorage (theo từng sản phẩm)
+        try {
+            const savedReviews = window.localStorage ? localStorage.getItem(reviewsStorageKey) : null;
+            if (savedReviews) {
+                reviews = JSON.parse(savedReviews);
+                renderReviews();
+            }
+        } catch (e) {
+            console.error('Không thể đọc đánh giá từ localStorage', e);
+        }
+
+        // Xử lý click sao
+        const stars = document.querySelectorAll('#stars span');
+        stars.forEach(function(star) {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-star'));
+                selectedRating = rating;
+                updateStars(rating);
+            });
+        });
+
+        // Xử lý click tags
+        const tags = document.querySelectorAll('.tag');
+        tags.forEach(function(tag) {
+            tag.addEventListener('click', function() {
+                const tagText = this.getAttribute('data-tag');
+                if (this.classList.contains('active')) {
+                    this.classList.remove('active');
+                    selectedTags = selectedTags.filter(t => t !== tagText);
+                } else {
+                    this.classList.add('active');
+                    selectedTags.push(tagText);
+                }
+            });
+        });
+
+        // Xử lý textarea - đếm ký tự
+        const reviewText = document.getElementById('reviewText');
+        const charCount = document.getElementById('charCount');
+
+        if (reviewText && charCount) {
+            reviewText.addEventListener('input', function() {
+                const length = this.value.length;
+                charCount.textContent = length;
+            });
+        }
+
+        // Xử lý upload ảnh
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+
+        if (imageInput && preview) {
+            imageInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+
+                // Giới hạn 6 ảnh
+                if (files.length > 6) {
+                    alert('Chỉ được chọn tối đa 6 ảnh!');
+                    this.value = '';
+                    return;
+                }
+
+                // Xóa preview cũ
+                preview.innerHTML = '';
+                selectedImages = [];
+
+                // Hiển thị preview
+                files.forEach(function(file) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'preview-img';
+                            preview.appendChild(img);
+                            selectedImages.push(e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+        }
+
+        // Xử lý quantity input và buy now link
+        function clampQty(v) {
+            const n = Number(v);
+            if (!n || n < 1) return 1;
+            if (n > 99) return 99;
+            return n;
+        }
+
+        function updateBuyNowLink() {
+            if (!buyNowButton || !productId) return;
+            const qty = clampQty(quantityInput.value);
+            quantityInput.value = qty;
+            buyNowButton.href = `/checkout/buy-now?productId=${productId}&quantity=${qty}`;
+        }
+
+        if (quantityInput) {
+            quantityInput.addEventListener('input', updateBuyNowLink);
+            updateBuyNowLink();
+        }
+    });
+
+    // Cập nhật hiển thị sao
+    function updateStars(rating) {
+        const stars = document.querySelectorAll('#stars span');
+        stars.forEach(function(star, index) {
+            if (index < rating) {
+                star.textContent = '★';
+                star.classList.add('active');
+            } else {
+                star.textContent = '☆';
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    // Gửi đánh giá
+    function submitReview() {
+        const reviewText = document.getElementById('reviewText');
+        const reviewTextValue = reviewText ? reviewText.value.trim() : '';
+
+        // Validation
+        if (selectedRating === 0) {
+            alert('Vui lòng chọn số sao đánh giá!');
+            return;
+        }
+
+        if (reviewTextValue === '') {
+            alert('Vui lòng nhập nội dung đánh giá!');
+            return;
+        }
+
+        // Tạo đánh giá mới
+        const newReview = {
+            id: Date.now(),
+            rating: selectedRating,
+            tags: [...selectedTags],
+            content: reviewTextValue,
+            images: [...selectedImages],
+            date: new Date().toLocaleString('vi-VN'),
+            user: 'Người dùng'
+        };
+
+        // Thêm vào đầu mảng
+        reviews.unshift(newReview);
+
+        // Lưu vào localStorage (theo từng sản phẩm)
+        try {
+            if (window.localStorage) {
+                localStorage.setItem(reviewsStorageKey, JSON.stringify(reviews));
+            }
+        } catch (e) {
+            console.error('Không thể lưu đánh giá vào localStorage', e);
+        }
+
+        // Reset form
+        if (reviewText) {
+            reviewText.value = '';
+        }
+        const charCount = document.getElementById('charCount');
+        if (charCount) {
+            charCount.textContent = '0';
+        }
+        const preview = document.getElementById('preview');
+        if (preview) {
+            preview.innerHTML = '';
+        }
+        const imageInput = document.getElementById('imageInput');
+        if (imageInput) {
+            imageInput.value = '';
+        }
+
+        selectedRating = 0;
+        selectedTags = [];
+        selectedImages = [];
+
+        updateStars(0);
+
+        // Reset tags
+        document.querySelectorAll('.tag').forEach(function(tag) {
+            tag.classList.remove('active');
+        });
+
+        // Render lại danh sách đánh giá
+        renderReviews();
+
+        // Thông báo thành công
+        alert('Cảm ơn bạn đã đánh giá sản phẩm!');
+    }
+
+    // Render danh sách đánh giá
+    function renderReviews() {
+        const container = document.getElementById('reviewsContainer');
+        if (!container) return;
+
+        // Xóa nội dung cũ
+        container.innerHTML = '';
+
+        if (reviews.length === 0) {
+            container.innerHTML =
+                '<div class="no-reviews">' +
+                '<p>Chưa có đánh giá nào</p>' +
+                '<p>Hãy là người đầu tiên đánh giá sản phẩm này!</p>' +
+                '</div>';
+            return;
+        }
+
+        // Render từng đánh giá
+        reviews.forEach(function(review) {
+            const reviewItem = document.createElement('div');
+            reviewItem.className = 'review-item';
+
+            // Tạo chuỗi sao
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= review.rating) {
+                    starsHtml += '★';
+                } else {
+                    starsHtml += '☆';
+                }
+            }
+
+            // Tạo tags HTML
+            let tagsHtml = '';
+            if (review.tags && review.tags.length > 0) {
+                tagsHtml = '<div class="review-tags">';
+                review.tags.forEach(function(tag) {
+                    tagsHtml += '<span class="review-tag">' + tag + '</span>';
+                });
+                tagsHtml += '</div>';
+            }
+
+            // Tạo images HTML
+            let imagesHtml = '';
+            if (review.images && review.images.length > 0) {
+                imagesHtml = '<div class="review-images">';
+                review.images.forEach(function(imgSrc) {
+                    imagesHtml += '<img src="' + imgSrc + '" class="review-image" alt="Review image">';
+                });
+                imagesHtml += '</div>';
+            }
+
+            reviewItem.innerHTML =
+                '<div class="review-header">' +
+                '<div class="review-user-info">' +
+                '<div class="review-user">' + review.user + '</div>' +
+                '<div class="review-stars">' + starsHtml + '</div>' +
+                tagsHtml +
+                '</div>' +
+                '<div class="review-date">' + review.date + '</div>' +
+                '</div>' +
+                '<div class="review-content">' + review.content + '</div>' +
+                imagesHtml;
+
+            container.appendChild(reviewItem);
+        });
+    }
+
+    // Hàm tăng số lượng
+    window.incrementQuantity = function(btn) {
+        const input = btn.parentElement.querySelector('input');
+        if (input) {
+            const currentValue = Number(input.value) || 1;
+            const newValue = Math.min(99, Math.max(1, currentValue + 1));
+            input.value = newValue;
+            input.dispatchEvent(new Event('input'));
+        }
+    };
+
+    // Hàm giảm số lượng
+    window.decrementQuantity = function(btn) {
+        const input = btn.parentElement.querySelector('input');
+        if (input) {
+            const currentValue = Number(input.value) || 1;
+            const newValue = Math.min(99, Math.max(1, currentValue - 1));
+            input.value = newValue;
+            input.dispatchEvent(new Event('input'));
+        }
+    };
+</script>
+
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column payment-methods">
+            <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <div class="payment-images">
+                <img th:src="@{/visa.jpg}" alt="Visa" class="payment-icon">
+                <img th:src="@{/mastercard.jpg}" alt="Mastercard" class="payment-icon">
+                <img th:src="@{/jcb.jpg}" alt="JCB" class="payment-icon">
+                <img th:src="@{/tienmat.jpg}" alt="ATM" class="payment-icon">
+                <img th:src="@{/bank.jpg}" alt="Internet Banking" class="payment-icon">
+                <img th:src="@{/vnpay.jpg}" alt="VNPay" class="payment-icon">
+            </div>
+        </div>
+
+        <div class="footer-column social-connect">
+            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon google-map"><i class="fas fa-map-marker-alt"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-column contact-info">
+            <h3>THÔNG TIN LIÊN HỆ</h3>
+            <p><strong>Hộ Kinh doanh:</strong> VELORIA PARFUMERIE</p>
+            <p><strong>Số ĐKKD:</strong> UBND Quận 8, TPHCM</p>
+            <p><strong>Địa chỉ:</strong> P5, Q.8, TPHCM</p>
+            <p><strong>Điện thoại:</strong> 08888 09999</p>
+            <p><strong>Email:</strong> info@veloria.vn</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Veloria Parfum Shop. Cung cấp bởi Veloria</p>
+    </div>
+</footer>
+
+</body>
+</html>

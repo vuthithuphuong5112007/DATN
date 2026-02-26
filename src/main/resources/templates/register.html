@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Tài Khoản - Veloria</title>
+    <!-- Tải Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            /* Sử dụng background mờ ảo, sang trọng */
+            background: linear-gradient(135deg, #fbf7f4 0%, #f4e8e1 100%);
+            font-family: 'Inter', sans-serif;
+            /* Thay thế ảnh nền Perfume Background bằng nuochoa6.jpg */
+            background-image: url('/nuochoa6.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .luxury-title {
+            font-family: 'Playfair Display', serif;
+            color: #4a1f1f; /* Màu đỏ rượu/nâu đậm */
+        }
+        .accent-color {
+            background-color: #8c2a39; /* Đỏ rượu vang đậm */
+        }
+        .hover\:accent-color:hover {
+            background-color: #a84857;
+        }
+        .text-accent-color {
+            color: #8c2a39;
+        }
+        .input-focus:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #f4e8e1, 0 0 0 4px #8c2a39;
+            border-color: #8c2a39;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-6"> <!-- Tối ưu khoảng cách dọc -->
+
+<div class="w-full max-w-md p-8 sm:p-10 space-y-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl transition duration-300 transform border border-gray-100"> <!-- Tối ưu kích thước thẻ -->
+
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-3xl font-bold luxury-title">Đăng Ký</h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Tham gia Veloria để bắt đầu mua sắm.
+        </p>
+    </div>
+
+    <!-- Form Đăng ký: action="/register" sẽ được xử lý bởi HomeController -->
+    <!-- Bố cục 2 cột để giảm chiều dài: grid grid-cols-2 gap-x-4 gap-y-3 -->
+    <form class="grid grid-cols-2 gap-x-4 gap-y-3" method="POST" th:action="@{/register}" th:object="${nguoiDung}">
+
+        <!-- Hiển thị thông báo lỗi (chiếm 2 cột) -->
+        <div th:if="${error}" class="col-span-2 text-sm font-medium text-red-700 bg-red-100 p-3 rounded-lg border border-red-300">
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- 1. Họ Tên (Cột 1) -->
+        <div>
+            <label for="hoTen" class="block text-xs font-medium text-gray-700">Họ và Tên</label>
+            <input
+                    id="hoTen"
+                    name="hoTen"
+                    type="text"
+                    th:field="*{hoTen}"
+                    required
+                    placeholder="Nguyễn Văn A"
+                    class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-inner text-sm"
+            >
+        </div>
+
+        <!-- 2. Email (Cột 2) -->
+        <div>
+            <label for="email" class="block text-xs font-medium text-gray-700">Email</label>
+            <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    th:field="*{email}"
+                    required
+                    placeholder="email@example.com"
+                    class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-inner text-sm"
+            >
+            <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="mt-1 block text-xs text-red-600 font-semibold"></span>
+        </div>
+
+        <!-- 3. Tên Đăng Nhập (Cột 1) -->
+        <div>
+            <label for="tenDangNhap" class="block text-xs font-medium text-gray-700">Tên đăng nhập</label>
+            <input
+                    id="tenDangNhap"
+                    name="tenDangNhap"
+                    type="text"
+                    th:field="*{tenDangNhap}"
+                    required
+                    placeholder="tên đăng nhập"
+                    class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-inner text-sm"
+            >
+        </div>
+
+        <!-- 4. Số điện thoại (Cột 2) -->
+        <div>
+            <label for="sdt" class="block text-xs font-medium text-gray-700">Số điện thoại</label>
+            <input
+                    id="sdt"
+                    name="sdt"
+                    type="tel"
+                    th:field="*{sdt}"
+                    required
+                    placeholder="0987 654 321"
+                    class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-inner text-sm"
+
+            >
+            <span id="sdtError" class="mt-1 block text-xs text-red-600 font-semibold"></span>
+
+            <span th:if="${#fields.hasErrors('sdt')}" th:errors="*{sdt}" class="mt-1 block text-xs text-red-600 font-semibold"></span>
+        </div>
+
+        <!-- 5. Mật Khẩu (Cột 1) -->
+        <div>
+            <label for="matKhau" class="block text-xs font-medium text-gray-700">Mật Khẩu</label>
+            <input
+                    id="matKhau"
+                    name="matKhau"
+                    type="password"
+                    th:field="*{matKhau}"
+                    required
+                    placeholder="Mật khẩu"
+                    class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-inner text-sm"
+            >
+        </div>
+
+        <!-- 6. Địa chỉ (Cột 2) -->
+        <div>
+            <label for="diaChi" class="block text-xs font-medium text-gray-700">Địa chỉ (Tỉnh/TP)</label>
+            <input
+                    id="diaChi"
+                    name="diaChi"
+                    type="text"
+                    th:field="*{diaChi}"
+                    placeholder="Hồ Chí Minh"
+                    class="input-focus block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-inner text-sm"
+            >
+        </div>
+
+        <!-- Nút Đăng Ký (Chiếm 2 cột) -->
+        <div class="col-span-2 mt-2">
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white accent-color hover\:accent-color focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-red-300 transition duration-300 ease-in-out transform hover:scale-[1.01]">
+                Hoàn Tất Đăng Ký
+            </button>
+        </div>
+    </form>
+
+    <!-- Link Đăng nhập -->
+    <div class="text-center pt-1 col-span-2">
+        <p class="text-xs text-gray-600">
+            Đã có tài khoản?
+            <a th:href="@{/login}" class="font-medium text-accent-color hover:text-red-800">
+                Đăng nhập ngay
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sdtInput = document.getElementById('sdt');
+        const sdtError = document.getElementById('sdtError');
+        const sdtPattern = /^\d{10}$/; // Biểu thức chính quy cho 10 chữ số
+
+        function validateSdt() {
+            const value = sdtInput.value.trim();
+
+            // Xóa lỗi cũ
+            sdtError.textContent = '';
+
+            // 1. Kiểm tra không được để trống
+            if (value === '') {
+                // Chúng ta sẽ dựa vào 'required' của HTML5 hoặc Thymeleaf cho lỗi này,
+                // nhưng có thể thông báo lỗi ngay lập tức nếu muốn.
+                return true; // Bỏ qua, để required xử lý
+            }
+
+            // 2. Kiểm tra đúng 10 chữ số
+            if (!sdtPattern.test(value)) {
+                sdtError.textContent = 'Số điện thoại phải có đúng 10 chữ số.';
+                sdtInput.classList.add('border-red-500'); // Thêm viền đỏ
+                sdtInput.classList.remove('border-gray-300');
+                return false;
+            }
+
+            // Nếu hợp lệ
+            sdtInput.classList.remove('border-red-500');
+            sdtInput.classList.add('border-gray-300');
+            return true;
+        }
+
+        // Lắng nghe sự kiện rời khỏi trường (blur)
+        sdtInput.addEventListener('blur', validateSdt);
+
+        // Lắng nghe sự kiện khi đang gõ (input - tùy chọn)
+        sdtInput.addEventListener('input', function() {
+            // Chỉ kiểm tra khi độ dài đã đủ gần 10 hoặc khi người dùng đã có lỗi
+            if (sdtInput.classList.contains('border-red-500') || sdtInput.value.length >= 10) {
+                validateSdt();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Thư Viện Mùi Hương | Veloria</title>
+
+    <!-- Font + Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #F8F8F8;
+            color: #333;
+            margin: 0;
+        }
+
+        /* HEADER */
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+        }
+
+        .nav-links a {
+            margin-right: 20px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 0 30px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        /* CONTAINER TRONG HEADER */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* LOGO */
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+            text-decoration: none;
+            white-space: nowrap;
+            margin-right: 20px;
+        }
+
+        /* MENU */
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #A52A2A;
+        }
+
+        /* KHU VỰC LOGIN + CART */
+        .auth-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        /* USER INFO */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* NÚT LOGOUT */
+        .logout-btn {
+            background-color: #555;
+            color: #FFF !important;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* CART + ORDERS */
+        .cart-orders {
+            display: flex;
+            gap: 12px;
+            margin-left: 10px;
+            border-left: 1px solid #EEE;
+            padding-left: 15px;
+            white-space: nowrap;
+        }
+
+        .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cart-orders a:hover {
+            color: #A52A2A;
+        }
+
+        .blog-container {
+            max-width: 780px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 40px 50px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+
+        .blog-title {
+            font-size: 2.4em;
+            color: #A52A2A;
+            margin-bottom: 15px;
+        }
+
+        .blog-meta {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .blog-image {
+            width: 100%;
+            max-width: 680px;
+            max-height: 420px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto 30px;
+        }
+
+        .blog-content {
+            font-size: 17px;
+            line-height: 1.9;
+            color: #444;
+        }
+
+        .blog-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            color: #FFF;
+            background: #A52A2A;
+            padding: 10px 22px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .blog-question {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c2c2c;
+            margin: 24px 0 12px;
+        }
+
+        .main-footer {
+            background-color: #A52A2A;
+            color: #FFF;
+            padding-top: 50px;
+            margin-top: 80px;
+        }
+
+        /* BỐ CỤC FOOTER */
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 50px 30px 50px;
+        }
+
+        /* TIÊU ĐỀ TRONG FOOTER */
+        .main-footer h3 {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* ICON THANH TOÁN */
+        .payment-methods .payment-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .payment-methods .payment-icon {
+            width: 60px;
+            height: auto;
+            background-color: #FFF;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        /* SOCIAL ICON */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #b31640;
+            color: #FFF;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .social-icon:hover {
+            background-color: #FFF;
+            color: #A52A2A;
+        }
+
+        /* PHẦN BOTTOM */
+        .footer-bottom {
+            background-color: rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.85em;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria</a>
+
+        <div class="nav-links">
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+
+            <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+                <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
+            </div>
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+            </div>
+
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
+
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- BLOG -->
+<main class="blog-container">
+
+    <h1 class="blog-title">
+        Gợi ý mùi hương thích hợp làm quà tặng 20/10 cho người phụ nữ của bạn
+    </h1>
+
+    <div class="blog-meta">
+        Đăng bởi <b>Veloria</b> • 16/11/2025
+    </div>
+
+    <img src="/nuochoa11.jpg" alt="Thư Viện Mùi Hương" class="blog-image">
+
+    <div class="blog-content">
+
+
+        <p>
+            Bạn đã bao giờ tự hỏi,
+            tại sao giữa muôn vàn lựa chọn,
+            người ta lại chọn <strong>nước hoa</strong>
+            để dành tặng nhau vào những dịp trọng đại?
+            Không giống như những món quà hữu hình khác,
+            nước hoa là món quà của
+            <em>cảm xúc</em> và <em>ký ức</em>.
+        </p>
+
+        <p>
+            Khi bạn trao đi một lọ nước hoa,
+            bạn đang gửi gắm những
+            <strong>thông điệp thầm kín</strong> sau đây:
+        </p>
+
+        <h2>1. “Tôi thấu hiểu con người bạn”</h2>
+
+        <p>
+            Để chọn được một mùi hương phù hợp,
+            bạn phải thực sự hiểu
+            tính cách, sở thích
+            và cả phong cách sống của người nhận.
+        </p>
+
+        <ul>
+            <li>
+                Tặng một mùi hương <strong>Floral (Hoa cỏ)</strong>
+                là sự công nhận cho nét dịu dàng.
+            </li>
+            <li>
+                Tặng một mùi hương <strong>Woody (Gỗ)</strong>
+                là sự trân trọng nét trầm mặc, vững chãi.
+            </li>
+        </ul>
+
+        <p>
+            Chọn đúng mùi hương họ yêu thích
+            chính là lời khẳng định:
+            <em>“Tôi luôn quan sát và thấu hiểu
+                những điều nhỏ bé nhất về bạn.”</em>
+        </p>
+
+        <h2>2. “Tôi muốn trở thành một phần ký ức của bạn”</h2>
+
+        <p>
+            Khứu giác là giác quan dẫn thẳng
+            đến vùng não lưu trữ ký ức.
+            Khi ai đó sử dụng mùi hương bạn tặng,
+            mỗi khi mùi hương ấy thoảng qua,
+            hình ảnh của bạn sẽ hiện diện
+            trong tâm trí họ.
+        </p>
+
+        <p>
+            Tặng nước hoa là cách để bạn
+            <strong>“định vị” sự hiện diện của mình</strong>
+            trong cuộc đời đối phương
+            một cách tinh tế và bền lâu nhất.
+        </p>
+
+        <h2>3. Sự gắn kết và thân mật</h2>
+
+        <p>
+            Nước hoa là vật phẩm
+            mang tính cá nhân rất cao,
+            bởi nó tiếp xúc trực tiếp trên da thịt.
+            Vì vậy, tặng nước hoa thường ngụ ý
+            cho một mối quan hệ
+            <strong>gần gũi và tin cậy</strong>.
+        </p>
+
+        <p>
+            Đó là lời mời gọi
+            bước vào thế giới riêng tư của nhau,
+            là sự gắn kết
+            giữa những tâm hồn đồng điệu.
+        </p>
+
+        <h2>4. Lời chúc về sự tự tin và rạng rỡ</h2>
+
+        <p>
+            Mùi hương có khả năng
+            thay đổi tâm trạng một cách kỳ diệu.
+            Một chút nước hoa
+            có thể khiến người phụ nữ
+            cảm thấy quyến rũ hơn,
+            giúp người đàn ông
+            cảm thấy bản lĩnh hơn.
+        </p>
+
+        <p>
+            Tặng nước hoa chính là lời chúc:
+            <em>
+                “Mong bạn luôn tự tin,
+                tỏa sáng và là phiên bản
+                hạnh phúc nhất của chính mình.”
+            </em>
+        </p>
+
+        <h2>💡 Gợi ý “Lời gửi gắm” đi kèm món quà</h2>
+
+        <p>
+            Nếu bạn đang chuẩn bị tặng nước hoa,
+            hãy thử đính kèm
+            một mẩu tin nhắn nhỏ
+            để món quà thêm phần ý nghĩa nhé:
+        </p>
+
+        <ul>
+            <li>
+                <strong>Dành cho người yêu:</strong><br>
+                “Mong mùi hương này sẽ thay anh/em
+                ở bên cạnh bạn mỗi ngày.”
+            </li>
+            <li>
+                <strong>Dành cho bạn bè:</strong><br>
+                “Hy vọng mùi hương này sẽ cùng bạn
+                viết nên những chương mới thật rực rỡ.”
+            </li>
+            <li>
+                <strong>Dành cho người thân:</strong><br>
+                “Tặng mẹ/chị chút hương thơm ấm áp,
+                giống như cảm giác khi con ở bên gia đình.”
+            </li>
+        </ul>
+
+        <blockquote>
+            <strong>Thư Viện Mùi Hương</strong><br>
+            Chúng mình giúp bạn
+            “dịch” những tình cảm khó nói
+            thành những nốt hương tinh tế.
+            Hãy để chúng mình cùng bạn
+            chọn lựa lời gửi gắm hoàn hảo nhất
+            cho người thương yêu.
+        </blockquote>
+
+        <p class="blog-question">
+            Bạn đã tìm thấy mùi hương nào
+            để gửi gắm tâm tư của mình chưa?
+            Hãy nhắn tin cho shop
+            để được tư vấn nhé!
+        </p>
+
+    </div>
+
+    <a th:href="@{/sanpham}" class="back-btn">
+        Tiến đến mua sắm nào! →
+    </a>
+
+</main>
+
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column payment-methods">
+            <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <div class="payment-images">
+                <img th:src="@{/visa.jpg}" alt="Visa" class="payment-icon">
+                <img th:src="@{/mastercard.jpg}" alt="Mastercard" class="payment-icon">
+                <img th:src="@{/jcb.jpg}" alt="JCB" class="payment-icon">
+                <img th:src="@{/tienmat.jpg}" alt="ATM" class="payment-icon">
+                <img th:src="@{/bank.jpg}" alt="Internet Banking" class="payment-icon">
+                <img th:src="@{/vnpay.jpg}" alt="VNPay" class="payment-icon">
+            </div>
+        </div>
+
+        <div class="footer-column social-connect">
+            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon google-map"><i class="fas fa-map-marker-alt"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-column contact-info">
+            <h3>THÔNG TIN LIÊN HỆ</h3>
+            <p><strong>Hộ Kinh doanh:</strong> VELORIA PARFUMERIE</p>
+            <p><strong>Số ĐKKD:</strong> UBND Quận 8, TPHCM</p>
+            <p><strong>Địa chỉ:</strong> P5, Q.8, TPHCM</p>
+            <p><strong>Điện thoại:</strong> 08888 09999</p>
+            <p><strong>Email:</strong> info@veloria.vn</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Veloria Parfum Shop. Cung cấp bởi Veloria</p>
+    </div>
+</footer>
+
+</body>
+</html>

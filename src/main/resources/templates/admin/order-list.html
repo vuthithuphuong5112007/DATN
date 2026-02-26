@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veloria - Quản lý Sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Tông màu chủ đạo & CSS cơ bản (GIỮ NGUYÊN) */
+        :root {
+            --color-primary: #b31640; /* Hồng Đất - Màu nhấn chính */
+            --color-secondary: #F8E8EE; /* Hồng nhạt - Nền phụ */
+            --color-text: #7c2323;
+            --color-text-light: #555555;
+            --color-bg: #FFFFFF;
+            --color-success: #4CAF50;
+            --color-warning: #FFC107;
+            --color-danger: #F44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: var(--color-text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar, Header CSS giữ nguyên... */
+        .sidebar {
+            width: 250px;
+            background-color: var(--color-bg);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+            transition: width 0.3s;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: var(--color-primary);
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* 2. Khu vực chính */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+        /* 3. Header */
+        .header {
+            /* Đặt tiêu đề và user-info đối diện nhau */
+            display: flex;
+            justify-content: space-between; /* Đẩy hai phần ra hai bên */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+        .user-info {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info span {
+            /* Đảm bảo chữ không bị xuống dòng */
+            white-space: nowrap;
+        }
+        .auth-container {
+            display: flex;
+            align-items: center; /* Căn giữa theo chiều dọc */
+            gap: 15px; /* Tạo khoảng cách giữa các thành phần */
+        }
+        /* Quan trọng: Định kiểu cho avatar */
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #d9534f;
+            color: white;
+            cursor: pointer;
+        }
+
+        .sidebar nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--color-text-light);
+            font-size: 16px;
+            border-left: 5px solid transparent;
+            transition: all 0.2s;
+        }
+        .sidebar nav a.active {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        /* --- CSS MỚI CHO QUẢN LÝ SẢN PHẨM --- */
+
+        .product-container {
+            background-color: var(--color-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 1. FORM NHẬP LIỆU (TOP SECTION) */
+        .input-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 cột cho form */
+            gap: 20px;
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+            border-bottom: 2px dashed var(--color-secondary);
+        }
+
+        .form-group {
+            /* Dành cho MÔ TẢ, chiếm 4 cột */
+            grid-column: span 1;
+        }
+        .form-group.full-width {
+            grid-column: span 4;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--color-secondary);
+        }
+
+        /* 2. THANH CHỨC NĂNG (Nút Thêm/Sửa/Xóa/Reset/Thoát) */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .action-buttons button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .action-buttons button:active {
+            transform: translateY(1px);
+        }
+
+        /* Màu nút */
+        .btn-add, .btn-update {
+            background-color: var(--color-success);
+            color: white;
+        }
+        .btn-delete {
+            background-color: var(--color-danger);
+            color: white;
+        }
+        .btn-reset {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        /* 3. BẢNG DỮ LIỆU (BOTTOM SECTION) */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .product-table th, .product-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-table th {
+            background-color: var(--color-primary); /* Dùng màu chính cho header bảng */
+            color: white;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .product-table tr:hover {
+            background-color: var(--color-secondary);
+            cursor: pointer;
+        }
+
+        .product-image-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        /* Dropdown Đăng xuất */
+        .user-dropdown {
+            position: absolute;
+            top: 50px; /* Vị trí dưới avatar */
+            right: 0;
+            background-color: var(--color-bg);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease-out;
+            min-width: 150px;
+        }
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: var(--color-text);
+            font-size: 14px;
+        }
+
+        .user-dropdown a:hover {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+        }
+
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; }
+        .admin-container { max-width: 1300px; margin: 50px auto; padding: 30px; background: #FFF; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .admin-table th, .admin-table td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        .admin-table th { background-color: #A52A2A; color: white; font-weight: bold; }
+        .status-pending { background-color: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 4px; font-weight: 600; }
+        .status-shipped { background-color: #cce5ff; color: #004085; padding: 5px 10px; border-radius: 4px; font-weight: 600; }
+        .status-completed { background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 4px; font-weight: 600; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 4px; font-weight: 600; }
+
+        .detail-row td {
+            padding: 0 !important; /* Xóa padding của td để div bên trong kiểm soát */
+            border-top: none !important;
+            border-bottom: 2px solid #A52A2A; /* Đường viền dưới đậm */
+        }
+        .detail-container {
+            background-color: #fff9f9; /* Nền hồng nhạt cho khu vực chi tiết */
+            padding: 25px;
+        }
+        .detail-container h4 {
+            color: #A52A2A;
+            border-bottom: 1px dashed #E0E0E0;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+        .detail-container p {
+            margin: 5px 0;
+        }
+
+        /* Đảm bảo bảng con trong chi tiết vẫn đẹp */
+        .detail-container .admin-table {
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        .detail-container .admin-table th {
+            background-color: #A52A2A;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Veloria Admin</h2>
+    <nav>
+        <a th:href="@{/admin/home}"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a th:href="@{/admin/sanpham}" class="active1"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
+        <a th:href="@{/admin/danhmuc}" class="active3"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
+        <a th:href="@{/admin/donhang}" class="active"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
+        <a th:href="@{/admin/khachhang}" class="active2"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
+        <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
+        <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
+    </nav>
+</div>
+
+<div class="main-content">
+
+    <div class="header">
+        <h1>Quản lý Danh mục</h1>
+
+        <div class="user-info">
+
+            <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 15px; position: relative;">
+
+            <span style="white-space: nowrap;">
+                Chào, <b sec:authentication="name">Admin</b>
+            </span>
+
+                <div class="user-avatar" id="avatar-toggle" title="Menu người dùng">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+
+                <div class="user-dropdown" id="user-dropdown-menu" style="position: absolute; right: 0; top: 50px;">
+                    <a href="#"><i class="fas fa-user-circle"></i> Hồ sơ</a>
+                    <a th:href="@{/logout}" id="logout-link" style="color: var(--color-danger);"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="cta-button" style="background-color: #5cb85c;">Đăng nhập</a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <h2 th:text="${pageTitle}" style="color: #A52A2A;">Quản lý Đơn hàng</h2>
+
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>Mã Đơn</th>
+                <th>Khách hàng</th>
+                <th>Ngày Đặt</th>
+                <th>Tổng Tiền</th>
+                <th>Trạng Thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}" id="row-order-[[${order.idDonHang}]]">
+                <td th:text="${order.idDonHang}">DH123</td>
+                <td th:text="${order.nguoiDung.tenDangNhap} + ' (' + ${order.nguoiDung.hoTen} + ')'">user1 (Nguyễn Văn A)</td>
+                <td th:text="${#dates.format(order.ngayDatHang, 'dd/MM/yyyy HH:mm')}">10/12/2025 09:00</td>
+                <td th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">1,000,000 đ</td>
+                <td>
+                        <span th:classappend="'status-' + ${#strings.toLowerCase(order.trangThaiDonHang)}"
+                              th:text="${order.trangThaiDonHang}">PENDING</span>
+                </td>
+                <td>
+                    <button type="button"
+                            th:data-id="${order.idDonHang}"
+                            onclick="toggleDetail(this)"
+                            class="btn-detail-toggle"
+                            style="background-color: #333; color: #FFF; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">
+                        Chi tiết
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<tr th:fragment="detailContent" class="order-detail-expanded" style="display: none;" th:if="${order}">
+    <td colspan="6" style="padding: 0;">
+        <div class="detail-container" style="background-color: #fff9f9; padding: 20px; border-top: 2px solid #EEE;">
+            <div style="display: flex; gap: 40px;">
+                <div style="flex: 1;">
+                    <h4 style="color: #6a1706; margin-top: 0;">Thông tin Khách hàng & Giao hàng</h4>
+                    <p><strong>Khách hàng:</strong> <span th:text="${order.nguoiDung.hoTen}"></span></p>
+                    <p><strong>Địa chỉ:</strong> <span th:text="${order.diaChiNhanHang}"></span></p>
+                    <p><strong>Ghi chú:</strong> <span th:text="${order.ghiChu}"></span></p>
+                    <p><strong>Trạng thái:</strong>
+                        <span th:classappend="'status-' + ${#strings.toLowerCase(order.trangThaiDonHang)}" th:text="${order.trangThaiDonHang}"></span>
+                    </p>
+                </div>
+
+                <div style="flex: 1;">
+                    <h4 style="color: #6a1706; margin-top: 0;">Cập nhật Trạng thái</h4>
+                    <form th:action="@{/admin/donhang/update-status/{id}(id=${order.idDonHang})}" method="post">
+                        <select id="status" name="newStatus" style="padding: 8px; border: 1px solid #CCC; margin-right: 10px;">
+                            <option value="PENDING" th:selected="${order.trangThaiDonHang == 'PENDING'}">PENDING (Chờ)</option>
+                            <option value="SHIPPED" th:selected="${order.trangThaiDonHang == 'SHIPPED'}">SHIPPED (Đang giao)</option>
+                            <option value="COMPLETED" th:selected="${order.trangThaiDonHang == 'COMPLETED'}">COMPLETED (Hoàn thành)</option>
+                            <option value="CANCELLED" th:selected="${order.trangThaiDonHang == 'CANCELLED'}">CANCELLED (Hủy)</option>
+                        </select>
+                        <button type="submit" style="background-color: #A52A2A; color: white; padding: 8px 15px; border: none; cursor: pointer;">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+
+            <h4 style="color: #A52A2A; margin-top: 20px;">Sản phẩm đã đặt</h4>
+            <table class="admin-table" style="width: 100%;">
+                <thead>
+                <tr style="background-color: #f1f1f1; color: #333;">
+                    <th style="padding: 8px;">Ảnh</th>
+                    <th style="padding: 8px;">Tên Sản phẩm</th>
+                    <th style="padding: 8px;">SL</th>
+                    <th style="padding: 8px; text-align: right;">Giá</th>
+                    <th style="padding: 8px; text-align: right;">Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${order.chiTietDonHang}">
+                    <td><img th:src="@{'/' + ${item.sanPham.duongDanAnh}}" style="width: 40px; height: 40px; object-fit: cover;"></td>
+                    <td th:text="${item.sanPham.tenSanPham}"></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(item.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                    <td style="text-align: right; font-weight: bold;" th:text="${#numbers.formatDecimal(item.priceAtOrder * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right; font-weight: bold; padding-top: 10px;">TỔNG CỘNG ĐƠN HÀNG:</td>
+                    <td style="text-align: right; font-weight: bold; color: #A52A2A; padding-top: 10px;"
+                        th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>
+
+<script>
+    function toggleDetail(buttonElement) {
+        const orderId = buttonElement.getAttribute('data-id');
+        const currentRow = buttonElement.closest('tr');
+        const detailRowId = `detail-row-${orderId}`;
+        let detailRow = document.getElementById(detailRowId);
+
+        // --- 1. Xử lý Đóng Chi tiết ---
+        if (detailRow && detailRow.classList.contains('open')) {
+            detailRow.remove();
+            buttonElement.textContent = 'Chi tiết';
+            buttonElement.style.backgroundColor = '#333';
+            detailRow.classList.remove('open');
+            return;
+        }
+
+        // --- 2. Đóng các chi tiết đang mở khác (Để tránh nhiều hàng mở cùng lúc) ---
+        document.querySelectorAll('.detail-row.open').forEach(row => {
+            row.remove();
+        });
+        document.querySelectorAll('.btn-detail-toggle').forEach(btn => {
+            if (btn !== buttonElement) {
+                btn.textContent = 'Chi tiết';
+                btn.style.backgroundColor = '#333';
+            }
+        });
+
+        // --- 3. Tạo Hàng chi tiết mới và Tải nội dung AJAX ---
+        if (!detailRow) {
+
+            // Tải nội dung bằng AJAX (Fragment sẽ trả về thẻ <tr>)
+            fetch(`/admin/donhang/${orderId}/detail-fragment`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Tạo một Element tạm thời để chứa HTML (Thymeleaf Fragment)
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+
+                    // Lấy thẻ <tr> đầu tiên từ Fragment
+                    detailRow = tempDiv.querySelector('tr');
+
+                    if (detailRow) {
+                        detailRow.id = detailRowId; // Gán ID cho thẻ <tr> vừa nhận được
+                        detailRow.classList.add('detail-row');
+
+                        // Chèn thẳng thẻ <tr> đã nhận được (detailRow) sau currentRow
+                        currentRow.parentNode.insertBefore(detailRow, currentRow.nextSibling);
+
+                        detailRow.classList.add('open');
+                        buttonElement.textContent = 'Đóng chi tiết';
+                        buttonElement.style.backgroundColor = '#A52A2A'; // Thay đổi màu nút khi mở
+                    } else {
+                        // Xử lý lỗi nếu Fragment không trả về thẻ <tr>
+                        alert('Lỗi: Fragment không hợp lệ');
+                    }
+                })
+                .catch(error => {
+                    // Logic xử lý lỗi AJAX...
+                    console.error('Error fetching detail:', error);
+                });
+        }
+    }
+</script>
+
+
+</body>
+</html>
+
+
+

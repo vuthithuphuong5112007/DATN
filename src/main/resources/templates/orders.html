@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử | Shop Nước Hoa</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        /* CSS cơ bản để demo phong cách tối giản */
+        body { font-family: 'Times New Roman', serif; background-color: #F8F8F8; color: #333; margin: 0; }
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 0 50px; /* Tăng padding hai bên đầu trang */
+            height: 90px;   /* Tăng chiều cao header cho thoáng */
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center; /* Căn giữa tất cả theo chiều dọc */
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+            text-decoration: none;
+            margin-right: 60px; /* Tạo khoảng trống 60px giữa Logo và Menu */
+            flex-shrink: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px; /* Khoảng cách giữa các mục Trang chủ, Cửa hàng... */
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap; /* Giúp dòng "Xin chào..." không bị xuống dòng */
+        }
+
+        .nav-links a, .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover { color: #A52A2A; }
+
+        .auth-area {
+            margin-left: auto; /* PHÉP MÀU: Tự động chiếm hết khoảng trống bên trái để đẩy mình sang phải */
+            display: flex;
+            align-items: center;
+            gap: 25px; /* Khoảng cách giữa cụm tên và cụm giỏ hàng */
+            flex-shrink: 0;
+        }
+
+        .cart-orders {
+            display: flex;
+            gap: 20px;
+            border-left: 1px solid #EEE;
+            padding-left: 20px;
+            align-items: center;
+        }
+
+        .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .product-grid {
+            /* Thay đổi quan trọng: Cố định 5 cột, mỗi cột chiếm 1 phần bằng nhau (1fr) */
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 30px; /* Khoảng cách giữa các sản phẩm */
+            padding: 50px;
+            max-width: 1400px; /* Tùy chọn: Mở rộng container để chứa 5 cột */
+            /* **ĐÃ SỬA:** Căn phải - Lề trái (left) tự động, lề phải (right) bằng 0 */
+            margin: 0 0 0 auto;
+        }
+        .product-card { background-color: #FFF; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.05); transition: transform 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .product-image { width: 100%; height: 250px; object-fit: cover; margin-bottom: 15px; border: 1px solid #EEE; }
+        .price { color: #A52A2A; font-weight: bold; font-size: 1.2em; margin-top: 5px; }
+        .cta-button { background-color: #A52A2A; color: #FFF; padding: 10px 20px; text-decoration: none; display: inline-block; margin-top: 15px; }
+        .hero-banner {
+            height: 450px;
+            /* Dùng đường dẫn tĩnh THUẦN HTML/CSS (nếu file banner.jpg nằm trong /static/) */
+            background-image: url('/nuochoa1.jpg'); /* CHỈ CẦN DẤU / VÌ ĐÃ CÓ TRONG /static/ */
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply;
+            background-color: rgba(0, 0, 0, 0.4);
+            color: #FFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .banner-title, .banner-slogan {
+            transition: transform 0.4s ease-out; /* 0.4s để tạo chuyển động chậm, sang trọng */
+            display: inline-block; /* Quan trọng: Cho phép transform hoạt động */
+            cursor: pointer; /* Thay đổi con trỏ chuột */
+        }
+
+        /* 1. Hiệu ứng Hover cho Tiêu đề chính (H1) */
+        .banner-title:hover {
+            transform: scale(1.05); /* Phóng to 5% */
+            color: rgba(218, 206, 207, 0.8) !important; /* Tùy chọn: Đổi sang màu vàng kim (Gold) */
+        }
+
+        /* 2. Hiệu ứng Hover cho Slogan (P) */
+        .banner-slogan:hover {
+            transform: scale(1.1); /* Phóng to 10% */
+            /* Tùy chọn: Giữ nguyên màu hoặc làm sáng hơn */
+            color: #FFF !important;
+        }
+
+        .product-grid {
+            /* Thay đổi quan trọng: Cố định 5 cột, mỗi cột chiếm 1 phần bằng nhau (1fr) */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px; /* Khoảng cách giữa các sản phẩm */
+            padding: 0 50px;
+            max-width: 1400px; /* Tùy chọn: Mở rộng container để chứa 5 cột */
+            margin: 0 auto; /* Căn giữa lưới */
+        }
+        .section-title {
+            text-align: center; /* Căn giữa */
+            font-size: 2.2em; /* Kích thước chữ lớn hơn */
+            font-weight: bold; /* Làm đậm */
+            color: #333; /* Màu chữ tối */
+            text-transform: uppercase; /* Chữ hoa toàn bộ */
+            margin-top: 60px; /* Khoảng cách với phần trên */
+            margin-bottom: 40px; /* Khoảng cách với phần dưới */
+            letter-spacing: 2px; /* Tăng khoảng cách giữa các chữ cái */
+            position: relative; /* Quan trọng để dùng cho pseudo-element */
+            padding-bottom: 15px; /* Tạo không gian cho đường kẻ dưới */
+        }
+
+        /* Thêm đường kẻ dưới cho tiêu đề để trông sang trọng hơn */
+        .section-title::after {
+            content: ''; /* Bắt buộc phải có */
+            display: block; /* Để đường kẻ có chiều rộng */
+            width: 80px; /* Chiều rộng của đường kẻ */
+            height: 3px; /* Độ dày của đường kẻ */
+            background-color: #A52A2A; /* Màu đường kẻ (màu nhấn của bạn) */
+            margin: 10px auto 0 auto; /* Căn giữa đường kẻ và đẩy xuống dưới chữ */
+            border-radius: 2px; /* Bo tròn góc đường kẻ (tùy chọn) */
+        }
+
+        /* --- CSS CHO SECTION THÔNG TIN --- */
+
+        .info-section {
+            padding: 60px 50px;
+            max-width: 1400px;
+            /* **ĐÃ SỬA:** Căn phải */
+            margin: 0 auto;
+        }
+
+        .info-title {
+            color: #A52A2A; /* Màu đỏ nâu/đỏ hồng đậm */
+            text-transform: uppercase;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+            position: relative;
+            text-align: center;
+        }
+
+        /* Hiệu ứng đường kẻ đôi dưới tiêu đề */
+        .info-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background-color: #A52A2A; /* Màu đậm */
+            margin: 10px auto 0 auto;
+            border-radius: 2px;
+        }
+        .info-title::before {
+            content: '';
+            display: block;
+            width: 120px;
+            height: 1px;
+            background-color: #F8E8EE; /* Màu nhạt */
+            margin: -5px auto 0 auto;
+            /* Dùng absolute position để đặt sát sau ::after */
+            position: absolute;
+            bottom: -15px; /* Điều chỉnh vị trí */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+
+        .articles-grid {
+            display: grid;
+            /* Giữ 4 cột cho các bài viết */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .article-card {
+            background-color: #FFF;
+            border: 1px solid #EEE;
+            border-radius: 8px;
+            overflow: hidden; /* Cắt ảnh thừa */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+
+        .article-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-body {
+            padding: 15px;
+        }
+
+        .article-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+            height: 3.3em; /* Giới hạn 2 dòng để đồng bộ chiều cao */
+            overflow: hidden;
+        }
+
+        .article-meta {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .article-meta .author {
+            color: #A52A2A; /* Tên tác giả dùng màu nhấn */
+            font-weight: bold;
+        }
+
+        .article-excerpt {
+            font-size: 0.9em;
+            color: #555;
+            height: 2.7em; /* Giới hạn 2 dòng */
+            overflow: hidden;
+        }
+
+        .read-more {
+            display: inline-block;
+            color: #A52A2A; /* Màu đỏ hồng */
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: color 0.2s;
+        }
+
+        .read-more:hover {
+            color: #b31640; /* Đậm hơn khi hover */
+        }
+
+        .main-footer {
+            background-color: #A52A2A; /* Màu đỏ hồng đậm, màu nhấn của bạn */
+            color: #FFF;
+            padding-top: 50px;
+        }
+
+        .footer-container {
+            display: grid;
+            /* Chia 3 cột bằng nhau */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            /* **ĐÃ SỬA:** Căn phải */
+            margin: 0 auto;
+            padding: 0 50px 30px 50px;
+        }
+
+        .main-footer h3 {
+            color: #FFF; /* Tiêu đề màu trắng */
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Đường kẻ mờ dưới tiêu đề */
+            padding-bottom: 10px;
+        }
+
+        .main-footer p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        /* ẢNH THANH TOÁN */
+        .payment-methods .payment-images {
+            display: flex;
+            flex-wrap: wrap; /* Cho phép xuống dòng */
+            gap: 5px;
+        }
+
+        .payment-methods .payment-icon {
+            width: 60px; /* Kích thước icon nhỏ */
+            height: auto;
+            background-color: #FFF; /* Nền trắng cho icon thanh toán */
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        /* SOCIAL ICONS */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #b31640; /* Màu đậm hơn một chút so với nền */
+            color: #FFF;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+
+        .social-icon:hover {
+            background-color: #FFF;
+            color: #A52A2A; /* Màu nhấn khi hover */
+        }
+
+        /* CON DẤU (DMCA, BCT) */
+        .seal-image {
+            display: block;
+            margin-top: 15px;
+            width: 120px;
+            height: auto;
+        }
+        .seal-image.large-seal {
+            width: 150px;
+        }
+
+        /* PHẦN FOOTER BOTTOM (Copyright) */
+        .footer-bottom {
+            background-color: #8c1236; /* Màu nền tối hơn 1 tone */
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: #FFFAFA; /* Màu trắng sáng */
+        }
+
+        .pagination {
+            margin: 20px auto; /* Thay margin-top: 20px; thành margin: 20px auto; để căn giữa */
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: table; /* Quan trọng: Dùng table/inline-block để margin auto hoạt động */
+        }
+
+        .pagination a {
+            color: #A52A2A;
+            padding: 8px 15px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+
+            /* THÊM THUỘC TÍNH NÀY ĐỂ NÚT ĐẬM */
+            font-weight: bold;
+            font-size: 1.1em; /* Tùy chọn: Làm chữ to hơn một chút */
+        }
+
+        .pagination a:hover:not(.disabled) {
+            background-color: #A52A2A;
+            color: white;
+        }
+
+        .pagination a.disabled {
+            color: #ccc;
+            pointer-events: none; /* Không cho phép click */
+            cursor: default;
+            background-color: #eee;
+        }
+
+        /* Responsive cho Footer */
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr; /* Stack các cột trên màn hình nhỏ */
+                padding: 0 20px 30px 20px;
+            }
+        }
+
+        /* Tùy chọn: Thêm CSS cho màn hình nhỏ hơn (Responsive Design) */
+        @media (max-width: 1200px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr); /* Giảm xuống 4 cột */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr); /* Giảm xuống 2 cột trên di động */
+            }
+        }
+
+        /* Logic CSS cho hover */
+        .user-dropdown:hover .dropdown-content {
+            display: block !important;
+        }
+
+        /* Hiệu ứng hover cho các mục con */
+        .dropdown-content a:hover {
+            background-color: #e9e9e9;
+            color: #A52A2A;
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria</a>
+
+        <div class="nav-links">
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+
+            <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+                <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
+            </div>
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+            </div>
+
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
+
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container my-5" style="max-width: 1200px; margin: 40px auto; padding: 20px; background: #FFF; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+
+    <h2 class="section-title">LỊCH SỬ ĐƠN HÀNG CỦA BẠN</h2>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="empty-state" style="text-align: center; padding: 50px; background-color: #f7f7f7; border-radius: 6px;">
+        <i class="fas fa-box-open" style="font-size: 3em; color: #ccc; margin-bottom: 15px;"></i>
+        <p style="font-size: 1.2em; color: #555;">Bạn chưa có đơn hàng nào.</p>
+        <a th:href="@{/sanpham}" class="cta-button">Tiếp tục mua sắm</a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(orders)}" class="table-responsive">
+        <table class="table table-striped order-history-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+            <tr style="background-color: #A52A2A; color: #FFF;">
+                <th style="padding: 12px; text-align: left;">Mã Đơn</th>
+                <th style="padding: 12px; text-align: center;">Ngày Đặt</th>
+                <th style="padding: 12px; text-align: left;">Sản Phẩm & Chi tiết</th>
+                <th style="padding: 12px; text-align: right;">Tổng Tiền</th>
+                <th style="padding: 12px; text-align: center;">Trạng Thái</th>
+                <th style="padding: 12px; text-align: center;">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="order, orderStat : ${orders}">
+
+                <tr th:each="item, itemStat : ${order.chiTietDonHang}" style="border-bottom: 1px solid #EEE;">
+
+                    <td th:if="${itemStat.index == 0}"
+                        th:rowspan="${#lists.size(order.chiTietDonHang)}"
+                        style="padding: 12px; text-align: left; font-weight: bold; border-left: 2px solid #A52A2A;"
+                        th:text="${order.idDonHang}">DH12345</td>
+
+                    <td th:if="${itemStat.index == 0}"
+                        th:rowspan="${#lists.size(order.chiTietDonHang)}"
+                        style="padding: 12px; text-align: center;"
+                        th:text="${#dates.format(order.ngayDatHang, 'dd/MM/yyyy')}">10/12/2025</td>
+
+                    <td style="padding: 5px; text-align: left;">
+                        <div style="display: flex; align-items: center;">
+                            <img th:src="@{'/' + ${item.sanPham.duongDanAnh}}"
+                                 style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px;"
+                                 alt="Ảnh sản phẩm"/>
+
+                            <div>
+                                <span th:text="${item.sanPham.tenSanPham}" style="font-weight: 500;">Tên Sản Phẩm</span>
+                                <span style="display: block; font-size: 0.85em; color: #555;">(SL: <b th:text="${item.quantity}">2</b>)</span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td th:if="${itemStat.index == 0}"
+                        th:rowspan="${#lists.size(order.chiTietDonHang)}"
+                        style="padding: 12px; text-align: right; color: #A52A2A; font-weight: bold;"
+                        th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">1.000.000 đ</td>
+
+                    <td th:if="${itemStat.index == 0}"
+                        th:rowspan="${#lists.size(order.chiTietDonHang)}"
+                        style="padding: 12px; text-align: center;">
+                <span th:classappend="${order.trangThaiDonHang == 'PENDING' ? 'status-pending' : (order.trangThaiDonHang == 'SHIPPED' ? 'status-shipped' : 'status-completed')}"
+                      th:text="${order.trangThaiDonHang}"
+                      style="padding: 5px 10px; border-radius: 4px; font-weight: 600;">PENDING</span>
+                    </td>
+
+                    <td th:if="${itemStat.index == 0}"
+                        th:rowspan="${#lists.size(order.chiTietDonHang)}"
+                        style="padding: 12px; text-align: center;">
+                        <a th:href="@{/orders/detail/{id}(id=${order.idDonHang})}"
+                           class="btn btn-sm"
+                           style="background-color: #333; color: #FFF; padding: 6px 12px; text-decoration: none; border-radius: 4px;">Xem chi tiết</a>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column payment-methods">
+            <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <div class="payment-images">
+                <img th:src="@{/visa.jpg}" alt="Visa" class="payment-icon">
+                <img th:src="@{/mastercard.jpg}" alt="Mastercard" class="payment-icon">
+                <img th:src="@{/jcb.jpg}" alt="JCB" class="payment-icon">
+                <img th:src="@{/tienmat.jpg}" alt="ATM" class="payment-icon">
+                <img th:src="@{/bank.jpg}" alt="Internet Banking" class="payment-icon">
+                <img th:src="@{/vnpay.jpg}" alt="VNPay" class="payment-icon">
+            </div>
+        </div>
+
+        <div class="footer-column social-connect">
+            <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon google-map"><i class="fas fa-map-marker-alt"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-column contact-info">
+            <h3>THÔNG TIN LIÊN HỆ</h3>
+            <p><strong>Hộ Kinh doanh:</strong> VELORIA PARFUMERIE</p>
+            <p><strong>Số ĐKKD:</strong> UBND Quận 8, TPHCM</p>
+            <p><strong>Địa chỉ:</strong> P5, Q.8, TPHCM</p>
+            <p><strong>Điện thoại:</strong> 08888 09999</p>
+            <p><strong>Email:</strong> info@veloria.vn</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Veloria Parfum Shop. Cung cấp bởi Veloria</p>
+    </div>
+</footer>
+</body>
+</html>

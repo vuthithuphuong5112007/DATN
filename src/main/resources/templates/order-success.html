@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đặt hàng Thành công</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+<div style="text-align: center; padding: 80px 20px; max-width: 600px; margin: 50px auto; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+    <h1 style="color: var(--color-success); font-size: 2.5em; margin-bottom: 10px;">
+        <i class="fas fa-check-circle" style="color: #4CAF50;"></i> Hoàn tất Đơn hàng!
+    </h1>
+
+    <p th:if="${message}" th:text="${message}" style="font-size: 1.1em; color: #555; margin-bottom: 25px;"></p>
+
+    <p style="color: #777; margin-bottom: 30px;">
+        Chúng tôi đã nhận được đơn hàng của bạn và đang tiến hành xử lý. Bạn sẽ nhận được email xác nhận chi tiết.
+    </p>
+
+    <a th:href="@{/}" style="display: inline-block; padding: 12px 30px; background-color: #b31640; color: white; text-decoration: none; border-radius: 5px; font-weight: 600; transition: background-color 0.3s;">
+        Tiếp tục Mua sắm
+    </a>
+</div>
+</body>
+</html>

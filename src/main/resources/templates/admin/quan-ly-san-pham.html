@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veloria - Quản lý Sản phẩm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Tông màu chủ đạo & CSS cơ bản (GIỮ NGUYÊN) */
+        :root {
+            --color-primary: #b31640; /* Hồng Đất - Màu nhấn chính */
+            --color-secondary: #F8E8EE; /* Hồng nhạt - Nền phụ */
+            --color-text: #333333;
+            --color-text-light: #555555;
+            --color-bg: #FFFFFF;
+            --color-success: #4CAF50;
+            --color-warning: #FFC107;
+            --color-danger: #F44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: var(--color-text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar, Header CSS giữ nguyên... */
+        .sidebar {
+            width: 250px;
+            background-color: var(--color-bg);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+            transition: width 0.3s;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: var(--color-primary);
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* 2. Khu vực chính */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+        /* 3. Header */
+        .header {
+            /* Đặt tiêu đề và user-info đối diện nhau */
+            display: flex;
+            justify-content: space-between; /* Đẩy hai phần ra hai bên */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+        .user-info {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info span {
+            /* Đảm bảo chữ không bị xuống dòng */
+            white-space: nowrap;
+        }
+        .auth-container {
+            display: flex;
+            align-items: center; /* Căn giữa theo chiều dọc */
+            gap: 15px; /* Tạo khoảng cách giữa các thành phần */
+        }
+        /* Quan trọng: Định kiểu cho avatar */
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #d9534f;
+            color: white;
+            cursor: pointer;
+        }
+
+        .sidebar nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--color-text-light);
+            font-size: 16px;
+            border-left: 5px solid transparent;
+            transition: all 0.2s;
+        }
+        .sidebar nav a.active {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        /* --- CSS MỚI CHO QUẢN LÝ SẢN PHẨM --- */
+
+        .product-container {
+            background-color: var(--color-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 1. FORM NHẬP LIỆU (TOP SECTION) */
+        .input-form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 cột cho form */
+            gap: 20px;
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+            border-bottom: 2px dashed var(--color-secondary);
+        }
+
+        .form-group {
+            /* Dành cho MÔ TẢ, chiếm 4 cột */
+            grid-column: span 1;
+        }
+        .form-group.full-width {
+            grid-column: span 4;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--color-secondary);
+        }
+
+        /* 2. THANH CHỨC NĂNG (Nút Thêm/Sửa/Xóa/Reset/Thoát) */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .action-buttons button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .action-buttons button:active {
+            transform: translateY(1px);
+        }
+
+        /* Màu nút */
+        .btn-add, .btn-update {
+            background-color: var(--color-success);
+            color: white;
+        }
+        .btn-delete {
+            background-color: var(--color-danger);
+            color: white;
+        }
+        .btn-reset {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        /* 3. BẢNG DỮ LIỆU (BOTTOM SECTION) */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .product-table th, .product-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-table th {
+            background-color: var(--color-primary); /* Dùng màu chính cho header bảng */
+            color: white;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .product-table tr:hover {
+            background-color: var(--color-secondary);
+            cursor: pointer;
+        }
+
+        .product-image-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        /* Dropdown Đăng xuất */
+        .user-dropdown {
+            position: absolute;
+            top: 50px; /* Vị trí dưới avatar */
+            right: 0;
+            background-color: var(--color-bg);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease-out;
+            min-width: 150px;
+        }
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: var(--color-text);
+            font-size: 14px;
+        }
+
+        .user-dropdown a:hover {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Veloria Admin</h2>
+    <nav>
+        <a th:href="@{/admin/home}"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a th:href="@{/admin/sanpham}" class="active"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
+        <a th:href="@{/admin/danhmuc}" class="active1"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
+        <a th:href="@{/admin/donhang}" class="active3"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
+        <a th:href="@{/admin/khachhang}"
+           class="active2"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
+        <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
+        <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
+    </nav>
+</div>
+
+<div class="main-content">
+
+    <div class="header">
+        <h1>Quản lý Sản phẩm</h1>
+
+        <div class="user-info">
+
+            <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 15px; position: relative;">
+
+            <span style="white-space: nowrap;">
+                Chào, <b sec:authentication="name">Admin</b>
+            </span>
+
+                <div class="user-avatar" id="avatar-toggle" title="Menu người dùng">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+
+                <div class="user-dropdown" id="user-dropdown-menu" style="position: absolute; right: 0; top: 50px;">
+                    <a href="#"><i class="fas fa-user-circle"></i> Hồ sơ</a>
+                    <a th:href="@{/logout}" id="logout-link" style="color: var(--color-danger);"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="cta-button" style="background-color: #5cb85c;">Đăng nhập</a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="product-container">
+
+        <form th:action="@{/admin/sanpham/save}" th:object="${sanPham}" method="post" enctype="multipart/form-data">
+            <h3 style="color: var(--color-primary); margin-top: 0; padding-bottom: 10px;">
+                <i class="fas fa-cube"></i> Thông tin Sản phẩm
+            </h3>
+
+            <div class="input-form-grid">
+
+                <div class="form-group">
+                    <label for="idSanPham">Mã Sản phẩm</label>
+                    <input type="text" th:field="*{idSanPham}" id="idSanPham" readonly placeholder="Thêm mới: Hệ thống tự tạo">
+                </div>
+
+                <div class="form-group">
+                    <label for="tenSanPham">Tên Sản phẩm</label>
+                    <input type="text" th:field="*{tenSanPham}" id="tenSanPham" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="giaBan">Giá Bán (VNĐ)</label>
+                    <input type="number" th:field="*{giaBan}" id="giaBan" required step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="soLuongTon">Số lượng Tồn</label>
+                    <input type="number" th:field="*{soLuongTon}" id="soLuongTon" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="danhMuc">Danh mục</label>
+                    <select th:field="*{danhMuc.idDanhMuc}" id="danhMuc" required>
+                        <option th:each="dm : ${listDMs}" th:value="${dm.idDanhMuc}" th:text="${dm.tenDanhMuc}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="trangThaiHoatDong">Trạng thái Hoạt động</label>
+                    <select th:field="*{trangThaiHoatDong}" id="trangThaiHoatDong" required>
+                        <option value="true">Còn bán</option>
+                        <option value="false">Ngừng bán</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="duongDanAnhFile">Chọn Ảnh Sản phẩm</label>
+                    <input type="file" id="duongDanAnhFile" name="imageFile" accept="image/*">
+
+                    <input type="hidden" th:field="*{duongDanAnh}" id="duongDanAnhHidden" />
+
+                    <div style="margin-top: 10px;">
+                        <img id="currentImagePreview" src="" alt="Ảnh hiện tại" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; display: none;">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="moTa">Mô tả Sản phẩm</label>
+                    <textarea th:field="*{moTa}" id="moTa" rows="4" required></textarea>
+                </div>
+
+            </div>
+
+            <div class="action-buttons">
+                <button type="submit" class="btn-add btn-update"><i class="fas fa-save"></i> Lưu Sản phẩm</button>
+                <button type="button" class="btn-delete" id="btnDelete" onclick="confirmDeleteFromForm()" disabled><i class="fas fa-trash-alt"></i> Xóa</button>
+                <button type="button" class="btn-reset" onclick="resetForm()"><i class="fas fa-redo"></i> Reset Form</button>
+            </div>
+        </form>
+
+        <h3 style="color: var(--color-text); margin-top: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--color-secondary);">
+            <i class="fas fa-table"></i> Danh sách Sản phẩm
+        </h3>
+
+        <div style="overflow-x: auto;">
+            <table class="product-table">
+                <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Mã SP</th>
+                    <th>Tên Sản phẩm</th>
+                    <th>Giá bán</th>
+                    <th>Tồn kho</th>
+                    <th>Mô tả</th>
+                    <th>Danh mục</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="sp : ${listSanPhams}"
+                    onclick="loadProductToForm(this)"
+                    th:attr="data-id=${sp.idSanPham}, data-dm-id=${sp.danhMuc.idDanhMuc}, data-gia=${sp.giaBan}, data-ton=${sp.soLuongTon}, data-mota=${sp.moTa}, data-path=${sp.duongDanAnh}">
+
+                    <td><img th:src="@{'/' + ${sp.duongDanAnh}}" alt="Ảnh SP" class="product-image-thumb"></td>
+                    <td th:text="${sp.idSanPham}">SP001</td>
+                    <td th:text="${sp.tenSanPham}">Tên Sản phẩm</td>
+                    <td th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'POINT', 0, 'COMMA') + '₫'}">1.250.000₫</td>
+                    <td th:text="${sp.soLuongTon}">100</td>
+                    <td th:text="${sp.moTa}">Mô tả ngắn...</td>
+                    <td th:text="${sp.danhMuc.tenDanhMuc}">Nước Hoa Nữ</td>
+                    <td th:text="${sp.trangThaiHoatDong ? 'Còn bán' : 'Ngừng bán'}">Còn bán</td>
+                    <td>
+                        <a th:href="@{/admin/sanpham/edit/{id}(id=${sp.idSanPham})}" class="action-button edit-button">Sửa</a>
+
+                        <a th:href="@{/admin/sanpham/delete/{id}(id=${sp.idSanPham})}"
+                           onclick="return confirm('Xác nhận xóa danh mục: ' + this.closest('tr').cells[1].textContent + '?');"
+                           class="action-button delete-button">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatarToggle = document.getElementById('avatar-toggle');
+        const userDropdown = document.getElementById('user-dropdown-menu');
+
+        // Bật/tắt menu khi click vào Avatar
+        if (avatarToggle && userDropdown) {
+            avatarToggle.addEventListener('click', function() {
+                userDropdown.classList.toggle('show');
+            });
+        }
+
+        // Đóng menu nếu click ra ngoài
+        document.addEventListener('click', function(event) {
+            if (userDropdown && !avatarToggle.contains(event.target) && !userDropdown.contains(event.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    });
+    // Hàm nạp dữ liệu từ bảng lên Form khi click
+    function loadProductToForm(row) {
+        // 1. Lấy dữ liệu từ thuộc tính data-* (QUAN TRỌNG)
+        const maSP = row.getAttribute('data-id');
+        const danhMucId = row.getAttribute('data-dm-id');
+        const giaBan = row.getAttribute('data-gia');
+
+        // Lấy 2 trường MỚI
+        const soLuongTon = row.getAttribute('data-ton');
+        const moTa = row.getAttribute('data-mota');
+        const duongDanAnh = row.getAttribute('data-path');
+        const imagePreview = document.getElementById('currentImagePreview');
+
+        // Lấy các giá trị còn lại từ cột
+        const tenSP = row.cells[2].textContent;
+        const trangThaiHienThi = row.cells[7].textContent.trim();
+        const trangThaiValue = (trangThaiHienThi === 'Còn bán') ? 'true' : 'false'; // Cột 7 (chỉ mục 7) là Trạng thái
+
+        // 2. Đổ dữ liệu vào Form
+        document.getElementById('idSanPham').value = maSP;
+        document.getElementById('tenSanPham').value = tenSP;
+        document.getElementById('giaBan').value = giaBan;
+
+        // Đổ 2 trường MỚI
+        document.getElementById('soLuongTon').value = soLuongTon;
+        document.getElementById('moTa').value = moTa;
+
+        // Đổ ID danh mục vào thẻ SELECT
+        document.getElementById('danhMuc').value = danhMucId;
+
+        document.getElementById('trangThaiHoatDong').value = trangThaiValue;
+        document.getElementById('duongDanAnhHidden').value = duongDanAnh;
+
+        // 3. LOGIC HIỂN THỊ ẢNH (ĐƯỢC CHUYỂN VÀO ĐÂY)
+        if (duongDanAnh) {
+            // Đường dẫn ảnh phải khớp với URL gốc (VD: /nuochoa.jpg)
+            imagePreview.src = '/' + duongDanAnh;
+            imagePreview.style.display = 'block';
+        } else {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+        // 3. Kích hoạt nút Xóa
+        document.getElementById('btnDelete').disabled = false;
+
+        console.log('Đã tải sản phẩm ID: ' + maSP + ' lên form. Tồn: ' + soLuongTon);
+    }
+
+    // Hàm reset form
+    function resetForm() {
+        document.querySelector('form').reset();
+        document.getElementById('idSanPham').value = ""; // Xóa Mã SP
+        document.getElementById('btnDelete').disabled = true; // Vô hiệu hóa nút xóa
+        // Reset ảnh xem trước
+        const imagePreview = document.getElementById('currentImagePreview');
+        if (imagePreview) {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+    }
+
+    // Hàm xác nhận xóa từ nút trong bảng
+    function confirmDelete(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa sản phẩm ID " + id + " này không?")) {
+            window.location.href = '/admin/sanpham/delete/' + id;
+        }
+    }
+
+    // Hàm xác nhận xóa từ nút Xóa trên Form
+    function confirmDeleteFromForm() {
+        const id = document.getElementById('idSanPham').value;
+        if (id) {
+            confirmDelete(id);
+        } else {
+            alert("Vui lòng chọn một sản phẩm từ bảng trước khi xóa.");
+        }
+    }
+</script>
+
+</body>
+</html>
