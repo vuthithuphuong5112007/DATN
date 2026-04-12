@@ -33,11 +33,11 @@ public class DonHang {
     private String trangThaiDonHang;
 
     // Mối quan hệ Many-to-One với NguoiDung (Bảng con)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_NguoiDung")
     private NguoiDung nguoiDung;
 
     // Mối quan hệ One-to-Many với ChiTietDonHang (Bảng cha)
-    @OneToMany(mappedBy = "donHang", fetch = FetchType.LAZY) // Hoặc EAGER nếu muốn tải luôn
+    @OneToMany(mappedBy = "donHang", fetch = FetchType.EAGER)
     private List<ChiTietDonHang> chiTietDonHang;
 }

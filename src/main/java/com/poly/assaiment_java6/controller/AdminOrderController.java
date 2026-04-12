@@ -5,9 +5,7 @@ import com.poly.assaiment_java6.service.DonHangService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,19 +31,27 @@ public class AdminOrderController {
     @GetMapping("/{id}/detail-fragment")
     public String getOrderDetailFragment(@PathVariable("id") Integer orderId, Model model) {
 
+        // Lấy dữ liệu từ Service
         DonHang order = donHangService.findById(orderId).orElse(null);
 
         if (order == null) {
-            // Trả về một fragment lỗi đơn giản (fragment này cũng cần nằm trong order-list.html nếu bạn muốn)
-            // Hiện tại, tạm thời sử dụng logic kiểm tra lỗi trong JS
-            return null; // Hoặc trả về một trang 404 tùy chỉnh
+            return null;
         }
 
         model.addAttribute("order", order);
 
-        // 🚀 SỬA: CHỈ ĐỊNH ĐÚNG FILE HTML ĐANG CHỨA FRAGMENT
-        // Tên file của bạn là "admin/order-list"
-        // Fragment là "detailContent"
+        // CHỈ ĐỊNH ĐÚNG FILE: order-list.html
+        // Cú pháp: "thư_mục/tên_file :: tên_fragment"
         return "admin/order-list :: detailContent";
+    }
+    // Đừng quên hàm này để nút "Cập nhật" trong phần chi tiết hoạt động được nhé
+    @PostMapping("/update-status/{id}")
+    public String updateStatus(@PathVariable("id") Integer id, @RequestParam("newStatus") String newStatus) {
+        DonHang order = donHangService.findById(id).orElse(null);
+        if (order != null) {
+            order.setTrangThaiDonHang(newStatus);
+            donHangService.save(order);
+        }
+        return "redirect:/admin/donhang";
     }
 }

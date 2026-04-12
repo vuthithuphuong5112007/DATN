@@ -81,4 +81,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer>{
             + "AND dm.idDanhMuc NOT IN (10, 11) " // NOT IN trong JPQL
             + "ORDER BY dm.idDanhMuc ASC, sp.tenSanPham ASC")
     List<ProductDTO> findOtherFeaturedProducts();
+
+    @Query("SELECT COUNT(sp) FROM SanPham sp WHERE sp.soLuongTon < :threshold")
+    long countLowStock(@Param("threshold") int threshold);
 }
