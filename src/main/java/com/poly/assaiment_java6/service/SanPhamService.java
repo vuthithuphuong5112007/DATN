@@ -19,6 +19,8 @@ public interface SanPhamService {
 
     // 4. Thêm hàm deleteSanPhamById()
     void deleteSanPhamById(Integer id);
+    // 5. Tìm kiếm theo tên sản phẩm có chứa từ khóa (Không phân biệt hoa/thường)
+    List<SanPham> searchProductsByName(String keyword);
 
     List<ProductDTO> getFeaturedProducts();
 

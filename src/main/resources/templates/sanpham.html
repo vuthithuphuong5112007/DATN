@@ -408,32 +408,31 @@
             <p class="filter-tip">Giúp lọc nhanh sản phẩm bạn tìm kiếm</p>
 
             <div class="filter-group brand-filter">
-                <h4>Thương hiệu</h4>
-                <div class="search-box">
-                    <input type="text" placeholder="Tìm Thương hiệu...">
-                    <button><i class="fas fa-search"></i></button>
+                <h4>Sản phẩm</h4>
+
+                <form action="/sanpham" method="GET">
+                    <div class="search-box">
+                        <input type="text" name="q" placeholder="Tìm kiếm sản phẩm" th:value="${currentKeyword}">
+
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+
+                <div class="filter-group price-filter">
+                    <h4>Giá sản phẩm</h4>
+                    <label><input type="checkbox"> Giá dưới 100.000đ</label>
+                    <label><input type="checkbox"> 100.000đ - 200.000đ</label>
+                    <label><input type="checkbox"> 200.000đ - 300.000đ</label>
+                    <label><input type="checkbox"> 300.000đ - 500.000đ</label>
                 </div>
-                <label><input type="checkbox"> Xerjoff</label>
-                <label><input type="checkbox"> Butterfly Thai Perfume</label>
-                <label><input type="checkbox"> Maison Martin Margiela</label>
-                <label><input type="checkbox"> Giorgio</label>
-            </div>
 
-            <div class="filter-group price-filter">
-                <h4>Giá sản phẩm</h4>
-                <label><input type="checkbox"> Giá dưới 100.000đ</label>
-                <label><input type="checkbox"> 100.000đ - 200.000đ</label>
-                <label><input type="checkbox"> 200.000đ - 300.000đ</label>
-                <label><input type="checkbox"> 300.000đ - 500.000đ</label>
-            </div>
-
-            <div class="filter-group category-filter">
-                <h4>DANH MỤC</h4>
-                <a href="#">Trang chủ</a>
-                <a href="#">Giới thiệu</a>
-                <a href="#">Thương hiệu</a>
-                <a href="#">Nước hoa</a>
-            </div>
+                <div class="filter-group category-filter">
+                    <h4>DANH MỤC</h4>
+                    <a href="#">Trang chủ</a>
+                    <a href="#">Giới thiệu</a>
+                    <a href="#">Thương hiệu</a>
+                    <a href="#">Nước hoa</a>
+                </div>
         </aside>
 
         <section class="product-list-area">
@@ -556,6 +555,19 @@
                 .catch(error => console.error('Lỗi:', error));
         });
     });
+    function searchProductByName() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (keyword === "") return;
+
+        // Sửa dòng fetch này, bỏ chữ "/api/products" đi
+        fetch(`/search-name?keyword=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Kết quả tìm kiếm theo tên:", data);
+                // Xử lý render data ra màn hình...
+            })
+            .catch(error => console.error("Lỗi khi tìm kiếm:", error));
+    }
 </script>
 </body>
 </html>
