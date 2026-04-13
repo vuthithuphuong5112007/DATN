@@ -1,6 +1,7 @@
 package com.poly.assaiment_java6.security;
 
 import com.poly.assaiment_java6.repository.NguoiDungRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,6 +14,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Configuration
 @EnableWebSecurity
@@ -99,5 +103,24 @@ public class SecurityConfig {
 
         return http.build();
     }
+    @GetMapping("/products/detail/{id}")
+    public String showProductDetail(@PathVariable("id") Integer id, Model model, HttpSession session) {
+        // ... code lấy sản phẩm giữ nguyên ...
 
+        // Lấy user từ session (thay "user" bằng tên biến bạn đặt lúc login)
+        Object user = session.getAttribute("user");
+
+        boolean isAdmin = false;
+        if (user != null) {
+            // Giả sử class User của bạn có hàm getRole() trả về "ADMIN" hoặc "USER"
+            // User loggedInUser = (User) user;
+            // if("ADMIN".equals(loggedInUser.getRole())) isAdmin = true;
+
+            // Cách test nhanh: Tạm thời để false để xem nút Xóa có mất không
+            isAdmin = false;
+        }
+
+        model.addAttribute("isAdmin", isAdmin);
+        return "chitietsanpham";
+    }
 }
