@@ -1,15 +1,18 @@
 package com.poly.assaiment_java6.controller;
 
 import com.poly.assaiment_java6.dto.ProductDTO;
+import com.poly.assaiment_java6.entity.SanPham;
 import com.poly.assaiment_java6.repository.SanPhamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -18,6 +21,16 @@ public class ViewSanPhamController {
     @Autowired
     private SanPhamRepository sanPhamRepository;
 
+    @GetMapping("/search-name")
+    @ResponseBody // <--- QUAN TRỌNG: Báo cho Spring biết hàm này trả về JSON, không phải HTML
+    public ResponseEntity<List<SanPham>> searchByName(@RequestParam("keyword") String keyword) {
+
+        // Gọi Service (Lưu ý: dùng đúng tên biến sanPhamService, không phải productService)
+        List<SanPham> products = sanPhamRepository.searchProductsByName(keyword);
+
+        // Trả kết quả về cho giao diện (View) dưới định dạng JSON
+        return ResponseEntity.ok(products);
+    }
     // NHẬN THÊM THAM SỐ @RequestParam("q")
     @GetMapping("/sanpham")
     public String showProductPage(Model model,
