@@ -9,6 +9,7 @@ import java.math.BigDecimal; // Cần import
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+// Sản phẩm
 public class ProductDTO {
 
     // Sửa Long thành Integer (hoặc giữ Long và đảm bảo Entity là Long)

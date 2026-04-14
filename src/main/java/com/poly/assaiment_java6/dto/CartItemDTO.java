@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 
 @Data
+// Giỏ hàng sản phẩm
 public class CartItemDTO {
     private SanPham product;
     private Integer quantity; // Số lượng

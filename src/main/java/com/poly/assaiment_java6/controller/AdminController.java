@@ -2,11 +2,14 @@ package com.poly.assaiment_java6.controller;
 
 
 import com.poly.assaiment_java6.dto.MonthlyRevenueDTO;
+import com.poly.assaiment_java6.dto.OrderStatusDTO;
+import com.poly.assaiment_java6.dto.Top5SanPhamDTO;
 import com.poly.assaiment_java6.entity.DonHang;
 import com.poly.assaiment_java6.entity.SanPham;
 import com.poly.assaiment_java6.repository.DonHangRepository;
 import com.poly.assaiment_java6.repository.SanPhamRepository;
 import com.poly.assaiment_java6.service.ActiveUserListener;
+import com.poly.assaiment_java6.service.ChiTietDonHangService;
 import com.poly.assaiment_java6.service.DonHangService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +31,11 @@ public class AdminController {
     @Autowired
     private DonHangRepository donHangRepo;
     @Autowired
-    private ActiveUserListener activeUserListener; // Tiêm listener vào
+    private ActiveUserListener activeUserListener;// Tiêm listener vào
+    @Autowired
+    private DonHangService donHangService;
+    @Autowired
+    ChiTietDonHangService chiTietService;
 
     // Gộp 2 hàm trùng lặp thành 1 hàm duy nhất cho trang Dashboard
     @GetMapping("/admin/home")
@@ -60,8 +68,37 @@ public class AdminController {
 
         model.addAttribute("recentOrders", recentOrders);
 
+        // lấy trạng thái đơn hàng theo kiểu biểu đồ bên dáhboard admin.html
+        // 1. Xử lý dữ liệu doanh thu theo ngày
+        LocalDate now = LocalDate.now();
+        List<MonthlyRevenueDTO> revenueList = donHangService.getDailyRevenue(now.getMonthValue(), now.getYear());
 
+        int daysInMonth = now.lengthOfMonth();
+        Double[] dailyRevenue = new Double[daysInMonth];
+        Arrays.fill(dailyRevenue, 0.0);
+        for (MonthlyRevenueDTO dto : revenueList) {
+            dailyRevenue[dto.getMonth() - 1] = dto.getRevenue();
+        }
+        model.addAttribute("revenueData", dailyRevenue);
+        model.addAttribute("daysInMonth", daysInMonth);
 
+        // 2. Xử lý dữ liệu biểu đồ tròn (Trạng thái)
+        List<OrderStatusDTO> statusList = donHangService.getCountOrdersByStatus();
+        List<String> statusLabels = statusList.stream().map(OrderStatusDTO::getStatus).toList();
+        List<Long> statusCounts = statusList.stream().map(OrderStatusDTO::getCount).toList();
+
+        model.addAttribute("statusLabels", statusLabels);
+        model.addAttribute("statusCounts", statusCounts);
+
+        // Tìm kiến top5 sản phẩm bán chạy
+        List<Top5SanPhamDTO> top5 = chiTietService.getTop5BestSellers();
+
+        // Tách tên và số lượng để Chart.js dễ đọc
+        List<String> names = top5.stream().map(Top5SanPhamDTO::getTenSanPham).toList();
+        List<Long> counts = top5.stream().map(Top5SanPhamDTO::getTongSoLuong).toList();
+
+        model.addAttribute("topProductNames", names);
+        model.addAttribute("topProductSales", counts);
         return "admin"; // Trả về templates/admin.html
     }
 

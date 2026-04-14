@@ -140,13 +140,19 @@
                         <div style="flex: 1;">
                             <h4 style="color: #A52A2A; margin-top: 0;">Cập nhật Trạng thái</h4>
                             <form th:action="@{/admin/donhang/update-status/{id}(id=${order.idDonHang})}" method="post">
-                                <select name="newStatus" style="padding: 5px;">
+                                <select name="newStatus" style="padding: 5px;"
+                                        th:disabled="${order.trangThaiDonHang == 'COMPLETED' or order.trangThaiDonHang == 'CANCELLED'}">
                                     <option value="PENDING" th:selected="${order.trangThaiDonHang == 'PENDING'}">PENDING</option>
                                     <option value="SHIPPED" th:selected="${order.trangThaiDonHang == 'SHIPPED'}">SHIPPED</option>
                                     <option value="COMPLETED" th:selected="${order.trangThaiDonHang == 'COMPLETED'}">COMPLETED</option>
                                     <option value="CANCELLED" th:selected="${order.trangThaiDonHang == 'CANCELLED'}">CANCELLED</option>
                                 </select>
-                                <button type="submit" style="background: #A52A2A; color: white; border: none; padding: 5px 10px; cursor: pointer;">Lưu</button>
+
+                                <button type="submit"
+                                        th:if="${order.trangThaiDonHang != 'COMPLETED' and order.trangThaiDonHang != 'CANCELLED'}"
+                                        style="background: #A52A2A; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                                    Lưu
+                                </button>
                             </form>
                         </div>
                     </div>

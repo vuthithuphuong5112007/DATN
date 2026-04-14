@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,5 +58,19 @@ public class OrderController {
         }
 
         return "orders"; // Trả về file orders.html
+    }
+
+    // --- PHƯƠNG THỨC 2: Chi tiết đơn hàng (PHẢI TÁCH RIÊNG RA THẾ NÀY) ---
+    @GetMapping("/orders/detail/{id}")
+    public String getOrderDetail(@PathVariable("id") Integer id, Model model) {
+        // 1. Tìm đơn hàng theo ID
+        Optional<DonHang> order = donHangService.findById(id);
+
+        if (order.isPresent()) {
+            model.addAttribute("order", order.get());
+            return "orders-detail"; // File HTML chi tiết đơn hàng (ví dụ: order.html)
+        } else {
+            return "redirect:/orders"; // Không thấy đơn hàng thì quay về danh sách
+        }
     }
 }

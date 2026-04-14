@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+// Doanh thu hàng tháng
 public class MonthlyRevenueDTO {
     private Integer month;
     private Double revenue;

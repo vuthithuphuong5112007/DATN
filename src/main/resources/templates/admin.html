@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veloria - Trang Quản Lý (Admin Dashboard)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Tông màu chủ đạo */
         :root {
@@ -378,12 +379,17 @@
         </div>
     </div>
 
-    <div class="content-grid">
+    <div class="content-grid" style="display: grid; grid-template-columns: 1fr 1.5fr 1.2fr; gap: 20px; align-items: start;">
+
+        <div class="chart-box" style="width: 300px; margin: 0 auto;">
+            <h3><i class="fas fa-chart-pie"></i> Tỉ lệ trạng thái đơn hàng</h3>
+            <canvas id="statusPieChart"></canvas>
+        </div>
 
         <div class="chart-box">
-            <h3><i class="fas fa-chart-area"></i> Biểu đồ Doanh thu 7 ngày qua</h3>
-            <div class="chart-placeholder">
-                [Khu vực tích hợp Biểu đồ JavaScript thực tế (ví dụ: Chart.js)]
+            <h3><i class="fas fa-crown"></i> Top 5 Sản phẩm bán chạy</h3>
+            <div style="height: 300px;">
+                <canvas id="topProductsChart"></canvas>
             </div>
         </div>
 
@@ -418,7 +424,76 @@
 
 </div>
 
-<script>
+<script th:inline="javascript">
+    /* Cú pháp này giúp IDE không báo lỗi đỏ nữa */
+    const statusLabels = /*[[${statusLabels}]]*/ [];
+    const statusCounts = /*[[${statusCounts}]]*/ [];
+
+    // Kiểm tra dữ liệu trong Console (F12) để xem có dữ liệu chưa
+    console.log("Labels:", statusLabels);
+    console.log("Counts:", statusCounts);
+
+    if (statusLabels && statusLabels.length > 0) {
+        new Chart(document.getElementById('statusPieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: ['#e4908d', '#95e497', '#ddd785', '#82b5da'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    } else {
+        console.error("Chưa có dữ liệu cho biểu đồ tròn!");
+    }
+
+    // --- BIỂU ĐỒ TOP 5 SẢN PHẨM (MỚI) ---
+    // Giả sử bạn gửi dữ liệu từ Java sang: topProductNames và topProductSales
+    const topLabels = /*[[${topProductNames}]]*/ ["Sản phẩm A", "Sản phẩm B", "Sản phẩm C", "Sản phẩm D", "Sản phẩm E"];
+    const topData = /*[[${topProductSales}]]*/ [120, 95, 80, 60, 45];
+
+    new Chart(document.getElementById('topProductsChart'), {
+        type: 'bar', // Cột thẳng đứng
+        data: {
+            labels: topLabels,
+            datasets: [{
+                label: 'Số lượng bán',
+                data: topData,
+                backgroundColor: '#b31640', // Màu hồng đất chủ đạo của bạn
+                borderRadius: 5,
+                barThickness: 30
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                legend: { display: false } // Tắt chú thích vì đã có nhãn dưới cột
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { display: false }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const avatarToggle = document.getElementById('avatar-toggle');
         const dropdownMenu = document.getElementById('user-dropdown-menu');

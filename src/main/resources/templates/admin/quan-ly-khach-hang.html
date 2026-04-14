@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veloria - Quản lý Khách hàng</title>
+    <title>Veloria - Quản lý Tài khoản</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
@@ -275,7 +275,7 @@
 <div class="main-content">
 
     <div class="header">
-        <h1>Quản lý Khách hàng</h1>
+        <h1>Quản lý Tài khoản</h1>
 
         <div class="user-info">
             <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 15px; position: relative;">
@@ -297,7 +297,7 @@
     </div>
 
     <div th:if="${message}" class="alert-success" style="padding: 10px; margin-top: 20px; margin-bottom: 20px; border: 1px solid var(--color-success); background-color: #D4EDDA; color: #155724; border-radius: 4px;" th:text="${message}"></div>
-    <div th:if="${error}" class="alert-danger" style="padding: 10px; margin-top: 20px; margin-bottom: 20px; border: 1px solid var(--color-danger); background-color: #F8D7DA; color: #721C24; border-radius: 4px;" th:text="${error}"></div>
+<!--    <div th:if="${error}" class="alert-danger" style="padding: 10px; margin-top: 20px; margin-bottom: 20px; border: 1px solid var(&#45;&#45;color-danger); background-color: #F8D7DA; color: #721C24; border-radius: 4px;" th:text="${error}"></div>-->
 
     <div class="product-container">
 
@@ -313,11 +313,13 @@
                 <div class="form-group">
                     <label for="hoTen">Họ và Tên</label>
                     <input type="text" th:field="*{hoTen}" id="hoTen" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('hoTen')}" th:errors="*{hoTen}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="tenDangNhap">Tên Đăng Nhập</label>
                     <input type="text" th:field="*{tenDangNhap}" id="tenDangNhap" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('tenDangNhap')}" th:errors="*{tenDangNhap}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
 
                 <div class="form-group">
@@ -325,42 +327,53 @@
                     <input type="password" th:field="*{matKhau}" id="matKhau"
                            th:required="${nguoiDung.idNguoiDung == null}"
                            placeholder="Để trống nếu không đổi mật khẩu">
+                    <div class="text-danger" th:if="${#fields.hasErrors('matKhau')}" th:errors="*{matKhau}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
+
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" th:field="*{email}" id="email" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="sdt">Số Điện Thoại</label>
                     <input type="text" th:field="*{sdt}" id="sdt">
+                    <div class="text-danger" th:if="${#fields.hasErrors('sdt')}" th:errors="*{sdt}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="vaiTro">Vai Trò</label>
                     <select th:field="*{vaiTro}" id="vaiTro" required>
-                        <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+                        <option th:each="role : ${roles}"
+                                th:value="${role}"
+                                th:text="${role}"
+                                th:disabled="${role == 'OWNER'}"></option>
                     </select>
                 </div>
 
                 <div class="form-group full-width">
                     <label for="diaChi">Địa chỉ chi tiết</label>
                     <textarea th:field="*{diaChi}" id="diaChi" rows="2"></textarea>
+                    <div class="text-danger" th:if="${#fields.hasErrors('diaChi')}" th:errors="*{diaChi}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
 
             </div>
 
             <div class="action-buttons">
                 <button type="submit" class="btn-add btn-update"><i class="fas fa-save"></i> Lưu Khách Hàng</button>
-                <button type="button" class="btn-delete" id="btnDeleteKhachHang" onclick="confirmDeleteKhachHangFromForm()"
-                        th:disabled="${nguoiDung.idNguoiDung == null}"><i class="fas fa-trash-alt"></i> Xóa</button>
+                <button type="button" class="btn-delete" id="btnDeleteKhachHang"
+                        onclick="confirmDeleteKhachHangFromForm()"
+                        th:disabled="${nguoiDung.idNguoiDung == null or nguoiDung.vaiTro == 'OWNER'}">
+                    <i class="fas fa-trash-alt"></i> Xóa
+                </button>
                 <button type="button" class="btn-reset" onclick="resetKhachHangForm()"><i class="fas fa-redo"></i> Reset Form</button>
             </div>
         </form>
 
         <h3 style="color: var(--color-text); margin-top: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--color-secondary);">
-            <i class="fas fa-table"></i> Danh sách Khách hàng
+            <i class="fas fa-table"></i> Danh sách Tài khoản
         </h3>
 
         <div style="overflow-x: auto;">
@@ -373,7 +386,6 @@
                     <th>Email</th>
                     <th>SĐT</th>
                     <th>Vai Trò</th>
-                    <th>Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -384,12 +396,6 @@
                     <td th:text="${nd.email}"></td>
                     <td th:text="${nd.sdt}"></td>
                     <td th:text="${nd.vaiTro}"></td>
-                    <td>
-                        <a th:href="@{/admin/khachhang/edit/{id}(id=${nd.idNguoiDung})}" class="action-button edit-button">Sửa</a>
-                        <a th:href="@{/admin/khachhang/delete/{id}(id=${nd.idNguoiDung})}"
-                           onclick="return confirm('Xác nhận xóa khách hàng: ' + this.closest('tr').cells[2].textContent + '?');"
-                           class="action-button delete-button">Xóa</a>
-                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -418,7 +424,7 @@
             }
         });
 
-        // --- LOGIC RIÊNG CHO KHÁCH HÀNG ---
+        // --- LOGIC RIÊNG CHO TÀI KHOẢN ---
 
         // Khởi tạo trạng thái nút xóa khi trang tải (nếu có dữ liệu edit được flash)
         const idInput = document.getElementById('idNguoiDung');
@@ -435,7 +441,7 @@
     // --- HẾT SCRIPT CHUNG ---
 
 
-    // Hàm reset form Khách hàng
+    // Hàm reset form Tài khoản
     function resetKhachHangForm() {
         // Chuyển hướng về trang GET chính để reset đối tượng th:object (Form trống)
         window.location.href = '/admin/khachhang';
@@ -455,7 +461,7 @@
         }
     }
 
-    // Hàm nạp dữ liệu từ bảng lên Form khi click (Cho Khách hàng)
+    // Hàm nạp dữ liệu từ bảng lên Form khi click (Cho Tài khoản )
     function loadKhachHangToForm(row) {
         // Cột Khách hàng: ID(0), Tên Đăng Nhập(1), Họ Tên(2), Email(3), SĐT(4), Vai Trò(5), Thao tác(6)
 
@@ -464,27 +470,40 @@
         const hoTen = row.cells[2].textContent;
         const email = row.cells[3].textContent;
         const sdt = row.cells[4].textContent;
-        const vaiTro = row.cells[5].textContent; // Vai trò
+        const vaiTro = row.cells[5].textContent;
 
         // Địa chỉ (Vấn đề: Địa chỉ không hiển thị trong bảng nên không lấy được trực tiếp)
         // Nếu địa chỉ không có trong bảng, bạn phải nạp nó từ thuộc tính data-address
         // Hoặc phải gọi AJAX. Tạm thời, chúng ta sẽ để trống hoặc dùng data-attribute.
 
         // --- ĐỔ DỮ LIỆU VÀO FORM ---
-        document.getElementById('idNguoiDung').value = idNguoiDung;
-        document.getElementById('tenDangNhap').value = tenDangNhap;
-        document.getElementById('hoTen').value = hoTen;
-        document.getElementById('email').value = email;
-        document.getElementById('sdt').value = sdt;
+        document.getElementById('idNguoiDung').value = row.cells[0].textContent;
+        document.getElementById('tenDangNhap').value = row.cells[1].textContent;
+        document.getElementById('hoTen').value = row.cells[2].textContent;
+        document.getElementById('email').value = row.cells[3].textContent;
+        document.getElementById('sdt').value = row.cells[4].textContent;
         document.getElementById('vaiTro').value = vaiTro;
 
         // Reset trường mật khẩu
-        document.getElementById('matKhau').value = "";
+        // document.getElementById('matKhau').value = "";
 
+        const deleteButton = document.getElementById('btnDeleteKhachHang');
+        if (vaiTro === 'OWNER') {
+            deleteButton.disabled = true; // Khóa nút xóa nếu là OWNER
+            deleteButton.style.opacity = '0.5'; // Làm mờ nút cho dễ nhận biết
+            deleteButton.title = "Không thể xóa tài khoản Quản trị viên hệ thống";
+        } else {
+            deleteButton.disabled = false;
+            deleteButton.style.opacity = '1';
+            deleteButton.title = "";
+        }
         // Kích hoạt nút Xóa
         document.getElementById('btnDeleteKhachHang').disabled = false;
         document.querySelector('.btn-add').innerHTML = '<i class="fas fa-save"></i> Cập nhật Khách Hàng';
 
+        // Reset mật khẩu và đổi tên nút lưu
+        document.getElementById('matKhau').value = "";
+        document.querySelector('.btn-add').innerHTML = '<i class="fas fa-save"></i> Cập nhật Khách Hàng';
         console.log('Đã tải Khách hàng ID: ' + idNguoiDung + ' lên form.');
     }
 </script>
