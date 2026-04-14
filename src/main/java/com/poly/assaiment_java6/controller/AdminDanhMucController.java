@@ -70,7 +70,7 @@ public class AdminDanhMucController {
             redirectAttributes.addFlashAttribute("message", "Xóa danh mục thành công!");
         } catch (Exception e) {
             // Xử lý nếu danh mục này đang có sản phẩm liên kết
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa. Danh mục này đang chứa sản phẩm!");
+            redirectAttributes.addFlashAttribute("error", "Không thể xóasss. Danh mục này đang chứa sản phẩm!");
         }
         return "redirect:/admin/danhmuc";
     }
