@@ -117,7 +117,7 @@ public class SecurityConfig {
             // if("ADMIN".equals(loggedInUser.getRole())) isAdmin = true;
 
             // Cách test nhanh: Tạm thời để false để xem nút Xóa có mất không
-            isAdmin = false;
+            isAdmin = true;
         }
 
         model.addAttribute("isAdmin", isAdmin);
