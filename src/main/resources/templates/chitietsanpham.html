@@ -533,7 +533,7 @@
 
 
 <script th:inline="javascript">
-    window.isRealAdmin = [[${isAdmin != null ? isAdmin : false}]];
+    window.isRealAdmin = /*[[${isAdmin != null ? isAdmin : false}]]*/ false;
 </script>
 
 <script>

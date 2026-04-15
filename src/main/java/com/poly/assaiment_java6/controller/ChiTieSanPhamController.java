@@ -6,6 +6,8 @@ import com.poly.assaiment_java6.repository.ReviewRepository;
 import com.poly.assaiment_java6.service.SanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,26 +23,33 @@ public class ChiTieSanPhamController {
     private SanPhamService productService;
 
     @Autowired
-    private ReviewRepository reviewRepository; // Thêm Repository để xử lý đánh giá
+    private ReviewRepository reviewRepository;
 
-    // 1. Hiển thị trang giao diện Chi tiết sản phẩm
+    // 1. Hiển thị trang giao diện Chi tiết sản phẩm (ĐÃ GỘP VÀ FIX CHUẨN)
     @GetMapping("/products/detail/{id}")
     public String showProductDetail(@PathVariable("id") Integer id, Model model) {
+        // Lấy sản phẩm từ database
         SanPham product = productService.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + id));
-
         model.addAttribute("product", product);
 
-        // Giả sử bạn có logic check admin ở đây, truyền xuống để hiện nút xóa
-        // Ví dụ tạm thời để true để bạn test, sau này bạn thay bằng logic check Role thật nhé
-        model.addAttribute("isAdmin", true);
+        // Kiểm tra quyền Admin từ Spring Security (Không gán cứng true nữa)
+        boolean isAdmin = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            // Kiểm tra xem User này có mang cờ ROLE_ADMIN hoặc ADMIN không
+            isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"));
+        }
+
+        // Gửi quyền chuẩn xác xuống HTML
+        model.addAttribute("isAdmin", isAdmin);
 
         return "chitietsanpham";
     }
 
-
-
-    // 2. Lấy danh sách đánh giá của sản phẩm (Dùng Long cho productId vì Entity Danhgia dùng Long)
+    // 2. Lấy danh sách đánh giá
     @ResponseBody
     @GetMapping("/products/detail/{productId}/reviews")
     public List<Danhgia> getReviewsByProduct(@PathVariable("productId") Long productId) {
@@ -55,10 +64,22 @@ public class ChiTieSanPhamController {
         return reviewRepository.save(danhgia);
     }
 
-    // 4. Xóa đánh giá (Dành cho Admin)
+    // 4. Xóa đánh giá (ĐÃ THÊM BẢO MẬT CHẶN Ở SERVER)
     @ResponseBody
     @DeleteMapping("/products/detail/reviews/{id}")
     public ResponseEntity<String> deleteReview(@PathVariable("id") Long id) {
+        // Chặn luông ở Back-end: Kể cả hack được giao diện cũng không xóa được
+        boolean isAdmin = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"));
+        }
+
+        if (!isAdmin) {
+            return ResponseEntity.status(403).body("Lỗi: Chỉ Admin mới được xóa!");
+        }
+
         try {
             reviewRepository.deleteById(id);
             return ResponseEntity.ok("Xóa thành công");
