@@ -1,18 +1,24 @@
 package com.poly.assaiment_java6.security;
 
 import com.poly.assaiment_java6.repository.NguoiDungRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Configuration
 @EnableWebSecurity
@@ -20,8 +26,9 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
+
     // Constructor Injection cho CustomUserDetailsService
-    public SecurityConfig(CustomUserDetailsService userDetailsService,  CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomOAuth2UserService customOAuth2UserService) {
         this.userDetailsService = userDetailsService;
         this.customOAuth2UserService = customOAuth2UserService;
     }
@@ -42,6 +49,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+
         // Tắt CSRF (Thường cần thiết khi làm việc với REST API/VueJS)
         .csrf(csrf -> csrf.disable())
         // ------------------ CẤU HÌNH PHÂN QUYỀN DỰA TRÊN URL -------------------
@@ -59,45 +67,47 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
 
-        // ------------------ CẤU HÌNH ĐĂNG NHẬP -------------------
-        .formLogin(form -> form
-            .loginPage("/login")
-            .loginProcessingUrl("/authenticate")
-            .defaultSuccessUrl("/", true) // Dùng true để luôn chuyển về trang chủ
-            .failureUrl("/login?error")
-            .permitAll()
-        )
 
-        // ------------------ CẤU HÌNH ĐĂNG NHẬP OAUTH2 -------------------
-        .oauth2Login(oauth -> oauth
-             // 1. Chỉ định trang đăng nhập tùy chỉnh của bạn
-             .loginPage("/login")
-             // 2. Chuyển hướng khi đăng nhập thành công
-             .defaultSuccessUrl("/", true)
-             // 3. Xử lý khi đăng nhập thất bại
-             .failureUrl("/login?oauth-error")
-             // 4. Cấu hình Service để xử lý thông tin user (Sử dụng Bean đã được inject)
-             .userInfoEndpoint(endpoint -> endpoint
-                 .userService(customOAuth2UserService)
-             )
-        )
+                // ------------------ CẤU HÌNH ĐĂNG NHẬP -------------------
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/authenticate")
+                        .defaultSuccessUrl("/", true) // Dùng true để luôn chuyển về trang chủ
+                        .failureUrl("/login?error")
+                        .permitAll()
+                )
 
-        // ------------------ CẤU HÌNH ĐĂNG XUẤT -------------------
-        .logout(logout -> logout
-             .logoutUrl("/logout")
-             .logoutSuccessUrl("/")
-             .invalidateHttpSession(true)
-             .deleteCookies("JSESSIONID")
-             .permitAll()
-        )
+                // ------------------ CẤU HÌNH ĐĂNG NHẬP OAUTH2 -------------------
+                .oauth2Login(oauth -> oauth
+                        // 1. Chỉ định trang đăng nhập tùy chỉnh của bạn
+                        .loginPage("/login")
+                        // 2. Chuyển hướng khi đăng nhập thành công
+                        .defaultSuccessUrl("/", true)
+                        // 3. Xử lý khi đăng nhập thất bại
+                        .failureUrl("/login?oauth-error")
+                        // 4. Cấu hình Service để xử lý thông tin user (Sử dụng Bean đã được inject)
+                        .userInfoEndpoint(endpoint -> endpoint
+                                .userService(customOAuth2UserService)
+                        )
+                )
 
-        // ------------------ XỬ LÝ LỖI TRUY CẬP -------------------
-        .exceptionHandling(exception -> exception
-            .accessDeniedPage("/access-denied")
-        );
+                // ------------------ CẤU HÌNH ĐĂNG XUẤT -------------------
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
+
+                // ------------------ XỬ LÝ LỖI TRUY CẬP -------------------
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/access-denied")
+                );
 
 
         return http.build();
     }
+
 
 }

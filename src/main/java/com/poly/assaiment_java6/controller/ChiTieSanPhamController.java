@@ -1,34 +1,90 @@
 package com.poly.assaiment_java6.controller;
 
+import com.poly.assaiment_java6.entity.Danhgia;
 import com.poly.assaiment_java6.entity.SanPham;
+import com.poly.assaiment_java6.repository.ReviewRepository;
 import com.poly.assaiment_java6.service.SanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Controller
 public class ChiTieSanPhamController {
-    // Inject service (ví dụ: ProductService)
+
     @Autowired
     private SanPhamService productService;
 
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    // 1. Hiển thị trang giao diện Chi tiết sản phẩm (ĐÃ GỘP VÀ FIX CHUẨN)
     @GetMapping("/products/detail/{id}")
-    // Đã sửa: Đổi kiểu ID sang Integer
     public String showProductDetail(@PathVariable("id") Integer id, Model model) {
-
-        // 1. Tìm sản phẩm theo ID
+        // Lấy sản phẩm từ database
         SanPham product = productService.findById(id)
-                // THAY ResourceNotFoundException BẰNG NoSuchElementException
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + id));
-
-        // 2. Thêm đối tượng sản phẩm vào Model
         model.addAttribute("product", product);
 
-        // 3. Trả về tên file HTML chi tiết sản phẩm
+        // Kiểm tra quyền Admin từ Spring Security (Không gán cứng true nữa)
+        boolean isAdmin = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            // Kiểm tra xem User này có mang cờ ROLE_ADMIN hoặc ADMIN không
+            isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"));
+        }
+
+        // Gửi quyền chuẩn xác xuống HTML
+        model.addAttribute("isAdmin", isAdmin);
+
         return "chitietsanpham";
+    }
+
+    // 2. Lấy danh sách đánh giá
+    @ResponseBody
+    @GetMapping("/products/detail/{productId}/reviews")
+    public List<Danhgia> getReviewsByProduct(@PathVariable("productId") Long productId) {
+        return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId);
+    }
+
+    // 3. Thêm đánh giá mới
+    @ResponseBody
+    @PostMapping("/products/detail/reviews")
+    public Danhgia createReview(@RequestBody Danhgia danhgia) {
+        danhgia.setCreatedAt(LocalDateTime.now());
+        return reviewRepository.save(danhgia);
+    }
+
+    // 4. Xóa đánh giá (ĐÃ THÊM BẢO MẬT CHẶN Ở SERVER)
+    @ResponseBody
+    @DeleteMapping("/products/detail/reviews/{id}")
+    public ResponseEntity<String> deleteReview(@PathVariable("id") Long id) {
+        // Chặn luông ở Back-end: Kể cả hack được giao diện cũng không xóa được
+        boolean isAdmin = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"));
+        }
+
+        if (!isAdmin) {
+            return ResponseEntity.status(403).body("Lỗi: Chỉ Admin mới được xóa!");
+        }
+
+        try {
+            reviewRepository.deleteById(id);
+            return ResponseEntity.ok("Xóa thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi khi xóa");
+        }
     }
 }
