@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veloria - Trang Quản Lý (Admin Dashboard)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Tông màu chủ đạo */
         :root {
@@ -278,6 +279,29 @@
             color: var(--color-primary);
             font-weight: 600;
         }
+        /* Màu xanh lá cho Hoàn thành */
+        .status.delivered {
+            background-color: #d4edda;
+            color: #28a745;
+        }
+
+        /* Màu xanh dương cho Đang giao */
+        .status.shipping {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        /* Màu vàng cho Đang chờ */
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        /* Màu đỏ cho Đã hủy */
+        .status.canceled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -295,7 +319,7 @@
            class="active-if-on-this-page2"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
 
         <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
-        <a href="#"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
+        <a th:href="@{/admin/baocaothongke}"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
         <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
         <hr style="border-top: 1px solid #eee; margin: 10px 20px;">
         <a th:href="@{/}" style="color: #c12909;"><i class="fas fa-home"></i> Quay lại Trang Chủ</a>
@@ -334,33 +358,38 @@
 
     <div class="metrics-grid">
         <div class="metric-card">
-            <div class="title">Doanh Thu Tháng</div>
-            <div class="value">95.400.000₫</div>
-            <div class="change">+12% so với tháng trước</div>
+            <div class="title">DOANH THU THÁNG</div>
+            <div class="value">[[${#numbers.formatInteger(revenue, 3, 'POINT')}]]₫</div>
+            <div class="change" style="color: #28a745;">+12% so với tháng trước</div>
         </div>
         <div class="metric-card">
-            <div class="title">Đơn Hàng Mới</div>
-            <div class="value">45</div>
-            <div class="change down">-5% so với tuần trước</div>
+            <div class="title">ĐƠN HÀNG CHƯA XỬ LÝ</div>
+            <div class="value">[[${newOrdersCount}]]</div>
+            <div class="change" style="color: #dc3545;">Cần xử lý ngay</div>
         </div>
         <div class="metric-card">
-            <div class="title">Sản Phẩm Tồn Kho Thấp</div>
-            <div class="value">8</div>
-            <div class="change">Cần hành động ngay</div>
+            <div class="title">SẢN PHẨM TỒN KHO THẤP</div>
+            <div class="value" th:text="${lowStock}">0</div>
+            <div class="sub-text" style="color: #28a745;">Cần hành động ngay</div>
         </div>
         <div class="metric-card">
-            <div class="title">Khách Hàng Mới</div>
-            <div class="value">210</div>
-            <div class="change">+25% so với tháng trước</div>
+            <div class="title">NGƯỜI DÙNG ĐANG ONLINE</div>
+            <div class="value value-online" th:text="${onlineUsers}">0</div>
+            <div class="sub-text" style="color: #28a745;">Người truy cập thực tế</div>
         </div>
     </div>
 
-    <div class="content-grid">
+    <div class="content-grid" style="display: grid; grid-template-columns: 1fr 1.5fr 1.2fr; gap: 20px; align-items: start;">
+
+        <div class="chart-box" style="width: 300px; margin: 0 auto;">
+            <h3><i class="fas fa-chart-pie"></i> Tỉ lệ trạng thái đơn hàng</h3>
+            <canvas id="statusPieChart"></canvas>
+        </div>
 
         <div class="chart-box">
-            <h3><i class="fas fa-chart-area"></i> Biểu đồ Doanh thu 7 ngày qua</h3>
-            <div class="chart-placeholder">
-                [Khu vực tích hợp Biểu đồ JavaScript thực tế (ví dụ: Chart.js)]
+            <h3><i class="fas fa-crown"></i> Top 5 Sản phẩm bán chạy</h3>
+            <div style="height: 300px;">
+                <canvas id="topProductsChart"></canvas>
             </div>
         </div>
 
@@ -375,30 +404,18 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>#DH1202</td>
-                    <td>3.200.000₫</td>
-                    <td><span class="status delivered">Đã giao</span></td>
-                </tr>
-                <tr>
-                    <td>#DH1203</td>
-                    <td>1.550.000₫</td>
-                    <td><span class="status pending">Đang chờ</span></td>
-                </tr>
-                <tr>
-                    <td>#DH1204</td>
-                    <td>890.000₫</td>
-                    <td><span class="status pending">Đang chờ</span></td>
-                </tr>
-                <tr>
-                    <td>#DH1205</td>
-                    <td>5.500.000₫</td>
-                    <td><span class="status delivered">Đã giao</span></td>
-                </tr>
-                <tr>
-                    <td>#DH1206</td>
-                    <td>1.250.000₫</td>
-                    <td><span class="status canceled">Đã hủy</span></td>
+                <tr th:each="dh : ${recentOrders}">
+                    <td th:text="'#' + ${dh.idDonHang}">#DH1202</td>
+                    <td th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'POINT', 0, 'COMMA')} + '₫'">0₫</td>
+                    <td>
+                    <span class="status"
+                          th:classappend="${dh.trangThaiDonHang == 'COMPLETED' ? 'delivered' :
+                           (dh.trangThaiDonHang == 'SHIPPED' ? 'shipping' :
+                           (dh.trangThaiDonHang == 'PENDING' ? 'pending' : 'canceled'))}"
+                          th:text="${dh.trangThaiDonHang}">
+                        STATUS
+                    </span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -407,7 +424,76 @@
 
 </div>
 
-<script>
+<script th:inline="javascript">
+    /* Cú pháp này giúp IDE không báo lỗi đỏ nữa */
+    const statusLabels = /*[[${statusLabels}]]*/ [];
+    const statusCounts = /*[[${statusCounts}]]*/ [];
+
+    // Kiểm tra dữ liệu trong Console (F12) để xem có dữ liệu chưa
+    console.log("Labels:", statusLabels);
+    console.log("Counts:", statusCounts);
+
+    if (statusLabels && statusLabels.length > 0) {
+        new Chart(document.getElementById('statusPieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: ['#e4908d', '#95e497', '#ddd785', '#82b5da'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    } else {
+        console.error("Chưa có dữ liệu cho biểu đồ tròn!");
+    }
+
+    // --- BIỂU ĐỒ TOP 5 SẢN PHẨM (MỚI) ---
+    // Giả sử bạn gửi dữ liệu từ Java sang: topProductNames và topProductSales
+    const topLabels = /*[[${topProductNames}]]*/ ["Sản phẩm A", "Sản phẩm B", "Sản phẩm C", "Sản phẩm D", "Sản phẩm E"];
+    const topData = /*[[${topProductSales}]]*/ [120, 95, 80, 60, 45];
+
+    new Chart(document.getElementById('topProductsChart'), {
+        type: 'bar', // Cột thẳng đứng
+        data: {
+            labels: topLabels,
+            datasets: [{
+                label: 'Số lượng bán',
+                data: topData,
+                backgroundColor: '#b31640', // Màu hồng đất chủ đạo của bạn
+                borderRadius: 5,
+                barThickness: 30
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                legend: { display: false } // Tắt chú thích vì đã có nhãn dưới cột
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { display: false }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const avatarToggle = document.getElementById('avatar-toggle');
         const dropdownMenu = document.getElementById('user-dropdown-menu');
@@ -426,22 +512,36 @@
         });
 
         // 2. Logic Xử lý Đăng xuất
-        logoutLink.addEventListener('click', function(event) {
-            event.preventDefault(); // Ngăn chặn hành động mặc định của thẻ <a>
-
-            // Trong môi trường Spring Boot Thymeleaf thực tế:
-            // Bạn sẽ thay đổi href của thẻ <a> thành th:href="@{/logout}"
-            // và Spring Security sẽ tự động xử lý.
-
-            // PHẦN GIẢ LẬP CHUYỂN HƯỚNG SANG TRANG CHỦ (index.html):
-            // Giả lập logic đăng xuất (ví dụ: xóa token/session nếu là SPA)
-            alert('Đăng xuất thành công! Đang chuyển hướng về trang chủ...');
-
-            // Điều hướng về trang chủ
-            // Giả định trang chủ của bạn là 'index.html' hoặc '/'
-            window.location.href = '/';
-        });
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(e) {
+                if (!confirm('Bạn có muốn thoát hệ thống không?')) {
+                    e.preventDefault(); // Chỉ chặn nếu người dùng nhấn "Hủy"
+                }
+                // Nếu nhấn "OK", link /logout sẽ chạy và session sẽ bị xóa sạch.
+            });
+        }
     });
+
+    function updateOnlineUsers() {
+        // Gọi đến API chúng ta vừa tạo
+        fetch('/api/admin/online-count')
+            .then(response => response.json())
+            .then(data => {
+                // Tìm cái thẻ hiển thị số online và cập nhật nó
+                const onlineElement = document.querySelector('.metric-card .value-online');
+                if (onlineElement) {
+                    onlineElement.innerText = data;
+                }
+            })
+            .catch(error => console.error('Lỗi cập nhật số người online:', error));
+    }
+
+    // Cứ 5000ms (5 giây) thì gọi hàm này một lần
+    setInterval(updateOnlineUsers, 5000);
+
+    // Chạy luôn lần đầu khi vừa load trang
+    updateOnlineUsers();
 </script>
 
 </body>

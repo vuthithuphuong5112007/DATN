@@ -49,22 +49,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Tắt CSRF (Thường cần thiết khi làm việc với REST API/VueJS)
-                .csrf(csrf -> csrf.disable())
-                // ------------------ CẤU HÌNH PHÂN QUYỀN DỰA TRÊN URL -------------------
-                .authorizeHttpRequests(authorize -> authorize
-                        // Trang công khai
-                        // FIX: Thêm "/encode-test" vào danh sách permitAll()
-                        .requestMatchers("/", "/products/**", "/register", "/css/**", "/js/**", "/*.jpg", "/api/products/**").permitAll()
-                        // Khu vực Quản trị Thống kê (Chỉ cho OWNER)
-                        .requestMatchers("/admin/statistics/**", "/api/statistics/**").hasAuthority("OWNER")
-                        // Khu vực Quản trị Chung (Cho OWNER và EMPLOYEE)
-                        .requestMatchers("/admin/**", "/api/admin/**").hasAnyAuthority("OWNER", "ADMIN")
-                        // Khu vực Khách hàng đã Đăng nhập (Cho tất cả đã xác thực)
-                        .requestMatchers("/order/**", "/account/**", "/api/checkout", "/api/account/**").authenticated()
-                        // FIX: Tất cả request còn lại phải yêu cầu đăng nhập
-                        .anyRequest().authenticated()
-                )
+
+        // Tắt CSRF (Thường cần thiết khi làm việc với REST API/VueJS)
+        .csrf(csrf -> csrf.disable())
+        // ------------------ CẤU HÌNH PHÂN QUYỀN DỰA TRÊN URL -------------------
+        .authorizeHttpRequests(authorize -> authorize
+            // Trang công khai
+            // FIX: Thêm "/encode-test" vào danh sách permitAll()
+            .requestMatchers("/", "/products/**", "/register", "/css/**", "/js/**", "/api/**", "/*.jpg", "/api/products/**").permitAll()
+            // Khu vực Quản trị Thống kê (Chỉ cho OWNER)
+            .requestMatchers("/admin/statistics/**", "/api/statistics/**").hasAuthority("OWNER")
+            // Khu vực Quản trị Chung (Cho OWNER và EMPLOYEE)
+            .requestMatchers("/admin/**", "/api/admin/**").hasAnyAuthority("OWNER", "ADMIN")
+            // Khu vực Khách hàng đã Đăng nhập (Cho tất cả đã xác thực)
+            .requestMatchers("/order/**", "/account/**", "/api/checkout", "/api/account/**").authenticated()
+            // FIX: Tất cả request còn lại phải yêu cầu đăng nhập
+            .anyRequest().authenticated()
+        )
+
 
                 // ------------------ CẤU HÌNH ĐĂNG NHẬP -------------------
                 .formLogin(form -> form

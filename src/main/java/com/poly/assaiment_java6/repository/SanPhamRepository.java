@@ -22,6 +22,9 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer>{
             + "FROM SanPham sp JOIN sp.danhMuc dm "
             + "WHERE sp.trangThaiHoatDong = True ")
     List<ProductDTO> findFeaturedProducts();
+    // tim kiem san pham theo ten
+    @Query("SELECT s FROM SanPham s WHERE LOWER(s.tenSanPham) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<SanPham> searchProductsByName(@Param("keyword") String keyword);
 
     // Trong SanPhamRepository.java
     @Query("SELECT NEW com.poly.assaiment_java6.dto.ProductDTO("
@@ -81,4 +84,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer>{
             + "AND dm.idDanhMuc NOT IN (10, 11) " // NOT IN trong JPQL
             + "ORDER BY dm.idDanhMuc ASC, sp.tenSanPham ASC")
     List<ProductDTO> findOtherFeaturedProducts();
+
+    @Query("SELECT COUNT(sp) FROM SanPham sp WHERE sp.soLuongTon < :threshold")
+    long countLowStock(@Param("threshold") int threshold);
 }

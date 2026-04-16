@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng | Veloria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px; }
+        .detail-container { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
+        /* Header chi tiết */
+        .order-header { border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .order-id { font-size: 1.5em; font-weight: bold; color: #A52A2A; }
+        .order-date { color: #888; font-size: 0.9em; }
+        .status-badge { padding: 6px 15px; border-radius: 20px; font-size: 0.85em; font-weight: 600; text-transform: uppercase; background: #eee; }
+
+        /* Danh sách sản phẩm kiểu hiện đại */
+        .product-item { display: flex; align-items: center; padding: 20px 0; border-bottom: 1px solid #f9f9f9; }
+        .product-item img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-right: 25px; border: 1px solid #eee; }
+        .product-info { flex-grow: 1; }
+        .product-name { font-size: 1.1em; font-weight: 600; margin-bottom: 5px; display: block; }
+        .product-meta { color: #777; font-size: 0.9em; }
+        .product-price { font-weight: bold; color: #333; font-size: 1.1em; }
+
+        /* Tổng kết đơn hàng */
+        .order-summary { margin-top: 30px; background: #fafafa; padding: 25px; border-radius: 8px; }
+        .summary-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1em; }
+        .summary-line.total { border-top: 1px solid #ddd; pt: 15px; margin-top: 15px; font-weight: bold; font-size: 1.3em; color: #A52A2A; }
+
+        /* Nút thao tác */
+        .actions { margin-top: 30px; display: flex; gap: 15px; }
+        .btn { padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: 0.3s; cursor: pointer; border: none; }
+        .btn-back { background: #333; color: #fff; }
+        .btn-back:hover { background: #000; }
+        .btn-print { background: #f0f0f0; color: #333; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .product-item { flex-direction: column; align-items: flex-start; }
+            .product-item img { margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="detail-container">
+    <div class="order-header">
+        <div>
+            <div class="order-id">Đơn hàng #<span th:text="${order.idDonHang}"></span></div>
+            <div class="order-date">Ngày đặt: <span th:text="${#dates.format(order.ngayDatHang, 'dd/MM/yyyy HH:mm')}"></span></div>
+        </div>
+        <div class="status-badge" th:text="${order.trangThaiDonHang}">PENDING</div>
+    </div>
+
+    <div class="product-list">
+        <div th:each="item : ${order.chiTietDonHang}" class="product-item">
+            <img th:src="@{'/' + ${item.sanPham.duongDanAnh}}" alt="Product">
+            <div class="product-info">
+                <span class="product-name" th:text="${item.sanPham.tenSanPham}">Tên nước hoa</span>
+                <div class="product-meta">
+                    Số lượng: <span th:text="${item.quantity}">1</span> x
+                    <span th:text="${#numbers.formatDecimal(item.priceAtOrder, 0, 'COMMA', 0, 'POINT')}"></span> đ
+                </div>
+            </div>
+            <div class="product-price">
+                <span th:text="${#numbers.formatDecimal(item.quantity * item.priceAtOrder, 0, 'COMMA', 0, 'POINT')}"></span> đ
+            </div>
+        </div>
+    </div>
+
+    <div class="order-summary">
+        <div class="summary-line">
+            <span>Tạm tính</span>
+            <span><span th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')}"></span> đ</span>
+        </div>
+        <div class="summary-line">
+            <span>Phí vận chuyển</span>
+            <span>Miễn phí</span>
+        </div>
+        <div class="summary-line total">
+            <span>TỔNG CỘNG</span>
+            <span><span th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')}"></span> đ</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{/orders}" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> Quay lại lịch sử
+        </a>
+        <button onclick="window.print()" class="btn btn-print">
+            <i class="fas fa-print"></i> In đơn hàng
+        </button>
+    </div>
+</div>
+
+</body>
+</html>
