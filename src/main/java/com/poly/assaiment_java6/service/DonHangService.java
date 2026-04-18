@@ -1,5 +1,7 @@
 package com.poly.assaiment_java6.service;
 
+import com.poly.assaiment_java6.dto.MonthlyRevenueDTO;
+import com.poly.assaiment_java6.dto.OrderStatusDTO;
 import com.poly.assaiment_java6.entity.DonHang;
 import com.poly.assaiment_java6.entity.NguoiDung;
 
@@ -11,4 +13,6 @@ public interface DonHangService {
     List<DonHang> findByNguoiDung(NguoiDung nguoiDung);
     List<DonHang> findAll();
     Optional<DonHang> findById(Integer id);
+    List<MonthlyRevenueDTO> getDailyRevenue(int month, int year);
+    List<OrderStatusDTO> getCountOrdersByStatus();
 }

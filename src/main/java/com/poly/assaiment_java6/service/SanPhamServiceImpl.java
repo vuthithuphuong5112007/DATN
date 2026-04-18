@@ -33,6 +33,11 @@ public class SanPhamServiceImpl implements SanPhamService{
         return sanPhamRepository.save(sanPham);
     }
 
+    // tim kiem san pham theo ten
+    @Override
+    public List<SanPham> searchProductsByName(String keyword) {
+        return sanPhamRepository.searchProductsByName(keyword);
+    }
     // Hàm triển khai: getSanPhamById()
     @Override
     public SanPham getSanPhamById(Integer id) {

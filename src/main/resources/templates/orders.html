@@ -521,29 +521,26 @@
             </tr>
             </thead>
             <tbody>
-            <th:block th:each="order, orderStat : ${orders}">
-
+            <th:block th:each="order : ${orders}">
                 <tr th:each="item, itemStat : ${order.chiTietDonHang}" style="border-bottom: 1px solid #EEE;">
 
                     <td th:if="${itemStat.index == 0}"
                         th:rowspan="${#lists.size(order.chiTietDonHang)}"
-                        style="padding: 12px; text-align: left; font-weight: bold; border-left: 2px solid #A52A2A;"
-                        th:text="${order.idDonHang}">DH12345</td>
+                        style="padding: 12px; font-weight: bold; border-left: 2px solid #A52A2A;"
+                        th:text="${order.idDonHang}"></td>
 
                     <td th:if="${itemStat.index == 0}"
                         th:rowspan="${#lists.size(order.chiTietDonHang)}"
                         style="padding: 12px; text-align: center;"
-                        th:text="${#dates.format(order.ngayDatHang, 'dd/MM/yyyy')}">10/12/2025</td>
+                        th:text="${#dates.format(order.ngayDatHang, 'dd/MM/yyyy')}"></td>
 
-                    <td style="padding: 5px; text-align: left;">
+                    <td style="padding: 8px; text-align: left;">
                         <div style="display: flex; align-items: center;">
                             <img th:src="@{'/' + ${item.sanPham.duongDanAnh}}"
-                                 style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px;"
-                                 alt="Ảnh sản phẩm"/>
-
+                                 style="width: 45px; height: 45px; object-fit: cover; margin-right: 10px; border-radius: 4px; border: 1px solid #eee;"/>
                             <div>
-                                <span th:text="${item.sanPham.tenSanPham}" style="font-weight: 500;">Tên Sản Phẩm</span>
-                                <span style="display: block; font-size: 0.85em; color: #555;">(SL: <b th:text="${item.quantity}">2</b>)</span>
+                                <span th:text="${item.sanPham.tenSanPham}" style="font-weight: 500; display: block;"></span>
+                                <span style="font-size: 0.85em; color: #777;">SL: <b th:text="${item.quantity}"></b> x <span th:text="${#numbers.formatDecimal(item.priceAtOrder, 0, 'COMMA', 0, 'POINT')}"></span>đ</span>
                             </div>
                         </div>
                     </td>
@@ -551,22 +548,21 @@
                     <td th:if="${itemStat.index == 0}"
                         th:rowspan="${#lists.size(order.chiTietDonHang)}"
                         style="padding: 12px; text-align: right; color: #A52A2A; font-weight: bold;"
-                        th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">1.000.000 đ</td>
+                        th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
 
                     <td th:if="${itemStat.index == 0}"
                         th:rowspan="${#lists.size(order.chiTietDonHang)}"
                         style="padding: 12px; text-align: center;">
-                <span th:classappend="${order.trangThaiDonHang == 'PENDING' ? 'status-pending' : (order.trangThaiDonHang == 'SHIPPED' ? 'status-shipped' : 'status-completed')}"
-                      th:text="${order.trangThaiDonHang}"
-                      style="padding: 5px 10px; border-radius: 4px; font-weight: 600;">PENDING</span>
+                <span th:text="${order.trangThaiDonHang}"
+                      th:class="'status-' + ${#strings.toLowerCase(order.trangThaiDonHang)}"
+                      style="padding: 4px 8px; border-radius: 4px; font-size: 0.9em; font-weight: 600; background: #eee;"></span>
                     </td>
 
                     <td th:if="${itemStat.index == 0}"
                         th:rowspan="${#lists.size(order.chiTietDonHang)}"
                         style="padding: 12px; text-align: center;">
                         <a th:href="@{/orders/detail/{id}(id=${order.idDonHang})}"
-                           class="btn btn-sm"
-                           style="background-color: #333; color: #FFF; padding: 6px 12px; text-decoration: none; border-radius: 4px;">Xem chi tiết</a>
+                           style="background: #333; color: #fff; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 0.85em;">Chi tiết</a>
                     </td>
                 </tr>
             </th:block>

@@ -453,12 +453,13 @@
 
 <header class="header">
     <div class="nav-container">
-        <a th:href="@{/}" class="logo">Veloria</a>
+        <a th:href="@{/}" class="logo">Veloria - Own Your Glow</a>
 
         <div class="nav-links">
             <a th:href="@{/}">Trang Chủ</a>
             <a th:href="@{/shop}">Cửa Hàng</a>
             <a th:href="@{/contact}">Liên Hệ</a>
+            <a th:href="@{/blog/danh-sach}" style="margin-right: 20px; text-decoration: none; color: #333;">Bài Viết</a>
 
             <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
                 <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
@@ -624,7 +625,7 @@
                 </p>
 
                 <!-- SỬA Ở ĐÂY -->
-                <a th:href="@{/templates/blog_vinh/1}" class="read-more">
+                <a th:href="@{/blog/bai-viet/1}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>
@@ -640,7 +641,7 @@
                     Hơn cả một món quà, mùi hương nước hoa chính là sự thấu hiểu và yêu thương sâu sắc nhất...
                 </p>
 
-                <a th:href="@{/templates/blog_vinh/2}" class="read-more">
+                <a th:href="@{/blog/bai-viet/2}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>
@@ -656,7 +657,7 @@
                     Hãy cùng nhau chậm lại một chút, tận hưởng những khoảnh khắc yên bình...
                 </p>
 
-                <a th:href="@{/templates/blog_vinh/3}" class="read-more">
+                <a th:href="@{/blog/bai-viet/3}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>
@@ -672,7 +673,7 @@
                     Tặng nước hoa mang ý nghĩa gửi gắm tình cảm tinh tế...
                 </p>
 
-                <a th:href="@{/templates/blog_vinh/4}" class="read-more">
+                <a th:href="@{/blog/bai-viet/4}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>

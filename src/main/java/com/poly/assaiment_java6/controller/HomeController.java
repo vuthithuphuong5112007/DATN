@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+// http://localhost:8080/
 @Controller
 @Transactional
 public class HomeController {
