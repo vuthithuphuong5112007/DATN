@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veloria - Quản lý Góp ý</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Tông màu chủ đạo & CSS cơ bản (GIỮ NGUYÊN) */
+        :root {
+            --color-primary: #b31640;
+            --color-secondary: #F8E8EE;
+            --color-text: #7c2323;
+            --color-text-light: #555555;
+            --color-bg: #FFFFFF;
+            --color-success: #4CAF50;
+            --color-warning: #FFC107;
+            --color-danger: #F44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: var(--color-text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar, Header CSS giữ nguyên... */
+        .sidebar {
+            width: 250px;
+            background-color: var(--color-bg);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+            transition: width 0.3s;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: var(--color-primary);
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* 2. Khu vực chính */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        /* 3. Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+        .user-info {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info span {
+            white-space: nowrap;
+        }
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #d9534f;
+            color: white;
+            cursor: pointer;
+        }
+
+        .sidebar nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--color-text-light);
+            font-size: 16px;
+            border-left: 5px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        /* Dropdown Đăng xuất */
+        .user-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--color-bg);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease-out;
+            min-width: 150px;
+        }
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: var(--color-text);
+            font-size: 14px;
+        }
+
+        .user-dropdown a:hover {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+        }
+
+        /* CSS Khu vực Table */
+        .admin-container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #FFF;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .admin-table th {
+            background-color: #A52A2A;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Class giúp nội dung dài không bị vỡ bảng */
+        .msg-truncate {
+            display: inline-block;
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Veloria Admin</h2>
+    <nav>
+        <a th:href="@{/admin/home}"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a th:href="@{/admin/sanpham}"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
+        <a th:href="@{/admin/danhmuc}"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
+        <a th:href="@{/admin/donhang}"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
+        <a th:href="@{/admin/khachhang}"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
+
+        <a th:href="@{/admin/contact}" class="active"><i class="fas fa-envelope"></i> Quản lý Góp ý</a>
+
+        <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
+        <a href="#"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
+        <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
+    </nav>
+</div>
+
+<div class="main-content">
+
+    <div class="header">
+        <h1>Quản lý Góp ý & Liên hệ</h1>
+
+        <div class="user-info">
+            <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 15px; position: relative;">
+                <span style="white-space: nowrap;">
+                    Chào, <b sec:authentication="name">Admin</b>
+                </span>
+                <div class="user-avatar" id="avatar-toggle" title="Menu người dùng">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="user-dropdown" id="user-dropdown-menu" style="position: absolute; right: 0; top: 50px;">
+                    <a href="#"><i class="fas fa-user-circle"></i> Hồ sơ</a>
+                    <a th:href="@{/logout}" id="logout-link" style="color: var(--color-danger);"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="cta-button" style="background-color: #5cb85c; padding: 8px 15px; border-radius: 4px; color: white; text-decoration: none;">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <h2 style="color: #A52A2A; margin-top: 0;">Danh sách Liên hệ từ Khách hàng</h2>
+
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th style="width: 80px;">Mã LH</th>
+                <th style="width: 200px;">Họ và tên</th>
+                <th style="width: 150px;">Số điện thoại</th>
+                <th>Nội dung</th>
+                <th style="width: 150px;">Ngày Gửi</th>
+                <th style="width: 100px;">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${contacts}">
+                <td th:text="${item.id}">1</td>
+
+                <td th:text="${item.fullName}">Tên khách hàng</td>
+                <td th:text="${item.phoneNumber}">0987654321</td>
+
+                <td>
+                    <span class="msg-truncate" th:text="${item.message}" th:title="${item.message}">
+                        Nội dung tin nhắn...
+                    </span>
+                </td>
+
+                <td th:text="${item.createdAt != null ? #temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm') : ''}">
+                    19/01/2026 15:48
+                </td>
+
+                <td style="text-align: center;">
+                    <a href="#" style="background-color: #333; color: #FFF; padding: 6px 12px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                        Chi tiết
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatarToggle = document.getElementById('avatar-toggle');
+        const dropdownMenu = document.getElementById('user-dropdown-menu');
+
+        if (avatarToggle && dropdownMenu) {
+            avatarToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!dropdownMenu.contains(e.target) && !avatarToggle.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
