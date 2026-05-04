@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Veloria Blog</title>
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    .nav-container {
+      display: flex;
+      align-items: center; /* Căn giữa tất cả theo chiều dọc */
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: #FFF;
+      border-bottom: 1px solid #EEE;
+      padding: 0 50px; /* Tăng padding hai bên đầu trang */
+      height: 90px;   /* Tăng chiều cao header cho thoáng */
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #A52A2A;
+      text-decoration: none;
+      margin-right: 60px; /* Tạo khoảng trống 60px giữa Logo và Menu */
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px; /* Khoảng cách giữa các mục Trang chủ, Cửa hàng... */
+      align-items: center;
+    }
+
+    .auth-area {
+      margin-left: auto; /* PHÉP MÀU: Tự động chiếm hết khoảng trống bên trái để đẩy mình sang phải */
+      display: flex;
+      align-items: center;
+      gap: 25px; /* Khoảng cách giữa cụm tên và cụm giỏ hàng */
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      white-space: nowrap; /* Giúp dòng "Xin chào..." không bị xuống dòng */
+    }
+
+    .cart-orders {
+      display: flex;
+      gap: 20px;
+      border-left: 1px solid #EEE;
+      padding-left: 20px;
+      align-items: center;
+    }
+
+    body {
+      font-family: 'Times New Roman', serif;
+      color: #333; /* Màu xám đậm thay vì đen tuyền giúp mắt dễ chịu hơn */
+    }
+
+    /* Sửa đoạn này để xóa gạch chân và ép màu đen */
+    .nav-links a,
+    .nav-links a:visited,
+    .nav-links a:active {
+      text-decoration: none !important; /* Xóa gạch chân tuyệt đối */
+      color: #333 !important;           /* Ép màu đen xám như thiết kế */
+      font-weight: 500;
+      transition: 0.3s;
+      white-space: nowrap;
+    }
+
+    /* Giữ hiệu ứng đổi màu khi di chuột vào */
+    .nav-links a:hover {
+      color: #A52A2A !important;
+      text-decoration: none !important;
+    }
+
+    .cart-orders a,
+    .cart-orders a:visited {
+      text-decoration: none !important;
+      color: #333 !important;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .cart-orders a:hover {
+      color: #A52A2A !important;
+    }
+
+    .auth-area {
+      margin-left: auto; /* Tự động chiếm hết khoảng trống bên trái để đẩy mình sang phải */
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #A52A2A;
+    }
+
+    .nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .nav a.active {
+      color: #A52A2A;
+      font-weight: bold;
+    }
+
+    /* TITLE */
+    .page-title {
+      text-align: center;
+      margin: 40px 0;
+      font-size: 2.2em;
+      color: #A52A2A;
+    }
+
+    /* BLOG GRID */
+    .blog-container {
+      width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+
+    .blog-card {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .blog-image img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .blog-content {
+      padding: 15px;
+    }
+
+    .blog-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #A52A2A;
+      margin-bottom: 10px;
+    }
+
+    .blog-desc {
+      font-size: 0.95em;
+      color: #555;
+      height: 50px;
+      overflow: hidden;
+    }
+
+    .blog-btn {
+      display: inline-block;
+      margin-top: 10px;
+      color: #A52A2A;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1000px) {
+      .blog-container {
+        grid-template-columns: repeat(2, 1fr);
+        width: 90%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .blog-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="nav-container">
+    <a th:href="@{/}" class="logo">Veloria - Own Your Glow</a>
+
+    <div class="nav-links">
+      <a th:href="@{/}">Trang Chủ</a>
+      <a th:href="@{/shop}">Cửa Hàng</a>
+      <a th:href="@{/contact}">Liên Hệ</a>
+      <a th:href="@{/blog/danh-sach}" style="margin-right: 20px; text-decoration: none; color: #333;">Bài Viết</a>
+
+      <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
+        <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
+      </div>
+    </div>
+
+    <div class="auth-area">
+      <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+        <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+      </div>
+
+      <div class="cart-orders">
+        <th:block sec:authorize="isAnonymous()">
+          <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+          <span style="margin-right: 10px; color: #ccc;">|</span>
+        </th:block>
+
+        <a th:href="@{/cart}">
+          <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+          Giỏ hàng
+          <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+          &rarr;
+        </a>
+        <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<h1 class="page-title">Tin Tức & Bài Viết</h1>
+
+<!-- LIST BLOG -->
+<div class="blog-container">
+
+  <div class="blog-card" th:each="b : ${blogs}">
+
+    <a th:href="@{'/blog/detail/' + ${b.id}}" style="text-decoration:none;color:inherit;">
+
+      <div class="blog-image">
+        <img th:if="${b.image != null}"
+             th:src="@{'/uploads/blog/' + ${b.image}}">
+        <img th:if="${b.image == null}"
+             src="/images/no-image.png">
+      </div>
+
+      <div class="blog-content">
+        <div class="blog-title" th:text="${b.title}"></div>
+
+        <div class="blog-desc" th:text="${#strings.abbreviate(b.content, 100)}"></div>
+
+        <div class="blog-btn">Xem chi tiết →</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+
+</body>
+</html>

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +38,14 @@ public class DonHang {
     @JoinColumn(name = "ID_NguoiDung")
     private NguoiDung nguoiDung;
 
-    // Mối quan hệ One-to-Many với ChiTietDonHang (Bảng cha)
-    @OneToMany(mappedBy = "donHang", fetch = FetchType.EAGER)
-    private List<ChiTietDonHang> chiTietDonHang;
+    // Sửa fetch thành EAGER để danh sách sản phẩm luôn sẵn sàng
+    @OneToMany(mappedBy = "donHang", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<ChiTietDonHang> chiTietDonHang = new ArrayList<>();
+
+    @Column(name = "LyDoHuy")
+    private String lyDoHuy;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_NguoiThucHien") // Phải khớp hoàn toàn với tên cột bạn vừa ALTER
+    private NguoiDung nguoiThucHien;
 }

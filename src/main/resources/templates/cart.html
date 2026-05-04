@@ -393,7 +393,7 @@
 <body>
 <header class="header">
     <div class="nav-container">
-        <a th:href="@{/}" class="logo">Veloria</a>
+        <a th:href="@{/}" class="logo">Veloria - Own Your Glow</a>
 
         <div class="nav-links">
             <a th:href="@{/}">Trang Chủ</a>
@@ -424,7 +424,15 @@
                     <span style="margin-right: 10px; color: #ccc;">|</span>
                 </th:block>
 
-                <a th:href="@{/cart}"><i class="fas fa-shopping-bag" style="color:#A52A2A"></i> Giỏ hàng &rarr;</a>
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="'(' + (${totalItems} ?: 0) + ')'">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
                 <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
             </div>
         </div>
@@ -451,7 +459,8 @@
     <table class="table table-bordered cart-table">
         <thead>
         <tr>
-            <th><input type="checkbox" id="checkAll" onchange="checkAllItems(this)"></th> <th>Ảnh</th>
+            <th><input type="checkbox" id="checkAll" onchange="checkAllItems(this)" checked></th>
+            <th>Ảnh</th>
             <th>Tên Sản Phẩm</th>
             <th>Giá</th>
             <th>Số Lượng</th>
@@ -466,33 +475,35 @@
                        class="item-checkbox"
                        checked
                        onchange="updateCartTotal()"
-                       th:data-id="${item.product.idSanPham}">
+                       th:data-id="${item.sanPham.idSanPham}">
             </td>
-            <td>
-                <img th:src="@{'/' + ${item.product.duongDanAnh}}" style="width: 80px; height: 80px; object-fit: cover;" alt="Sản phẩm"/>
-            </td>
-            <td th:text="${item.product.tenSanPham}">Nước hoa A</td>
 
-            <td th:id="'price-' + ${item.product.idSanPham}"
-                th:data-price="${item.price}"
-                th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">1.000.000 đ</td>
+            <td>
+                <img th:src="@{'/' + ${item.sanPham.duongDanAnh}}" style="width: 80px; height: 80px; object-fit: cover;" alt="Sản phẩm"/>
+            </td>
+
+            <td th:text="${item.sanPham.tenSanPham}">Tên SP</td>
+
+            <td th:id="'price-' + ${item.sanPham.idSanPham}"
+                th:data-price="${item.sanPham.giaBan}"
+                th:text="${#numbers.formatDecimal(item.sanPham.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">Giá</td>
             <td>
                 <input type="number"
-                       th:value="${item.quantity}"
+                       th:value="${item.soLuongMua}"
                        style="width: 60px; text-align: center;"
-                       min="1" max="99"
-
-                       th:onchange="|updateCartQuantity(${item.product.idSanPham}, this.value)|"
-
-                       th:id="'qty-' + ${item.product.idSanPham}"
-                />
+                       min="1"
+                       th:onchange="|updateCartQuantity(${item.idGioHang}, this.value, ${item.sanPham.idSanPham})|"
+                       th:id="'qty-' + ${item.sanPham.idSanPham}" />
             </td>
 
-            <td th:id="'subtotal-' + ${item.product.idSanPham}"
-                th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' đ'">2.000.000 đ</td>
+            <td th:id="'subtotal-' + ${item.sanPham.idSanPham}"
+                th:text="${#numbers.formatDecimal(item.soLuongMua * item.sanPham.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+            </td>
 
             <td>
-                <a th:href="@{/cart/remove/{id}(id=${item.product.idSanPham})}" class="btn btn-danger btn-sm">Xóa</a>
+                <a th:href="@{/cart/remove/{id}(id=${item.idGioHang})}"
+                   onclick="return confirm('Bạn có muốn bỏ sản phẩm này khỏi giỏ?')"
+                   class="btn btn-danger btn-sm">Xóa</a>
             </td>
         </tr>
         </tbody>
@@ -500,12 +511,10 @@
 
     <div class="cart-summary">
         <h3 style="text-align: right;">
-            Tổng Cộng (Các mục đã chọn): 
-            <span class="total-price" id="finalTotalPrice">
-                0 đ
-            </span>
+            Tổng Cộng (Các mục đã chọn):
+            <span class="total-price" id="finalTotalPrice">0 đ</span>
         </h3>
-        <button type="button" onclick="goToCheckout()" class="btn btn-success checkout-button">
+        <button onclick="goToCheckoutFromCart()" class="checkout-button">
             Tiến hành Thanh toán
         </button>
     </div>
@@ -551,46 +560,17 @@
         document.getElementById('finalTotalPrice').textContent = formatCurrency(finalTotal);
     }
 
-    /**
-     * Hàm xử lý khi thay đổi số lượng
-     * Lưu ý: Hàm này chỉ cập nhật giá trị trên giao diện.
-     * Logic AJAX/Controller để cập nhật Session sẽ cần được thêm sau.
-     */
-    function updateCartQuantity(productId, newQuantity) {
-        // Tạm thời chỉ gọi hàm tính toán lại tổng tiền trên giao diện
+    // 3. Hàm xử lý khi thay đổi số lượng (Cần giữ để cập nhật vào Database/Session)
+    // Thêm tham số idSanPham vào cuối
+    function updateCartQuantity(cartId, newQuantity, productId) {
         updateCartTotal();
 
-        // ⚠️ LOGIC CẬP NHẬT SESSION THỰC TẾ SẼ ĐƯỢC GỌI TẠI ĐÂY (AJAX POST request)
-        updateSessionCart(productId, newQuantity);
-    }
-
-    function goToCheckout() {
-        const selectedIds = [];
-        const checkboxes = document.querySelectorAll('.item-checkbox:checked'); // CHỈ LẤY CÁC CHECKBOX ĐÃ TÍCH
-
-        if (checkboxes.length === 0) {
-            alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
-            return;
+        // Đảm bảo tên hàm updateSessionCart bên dưới khớp với logic của bạn
+        if (typeof updateSessionCart === "function") {
+            updateSessionCart(cartId, newQuantity);
         }
-
-        // Thu thập ID của các sản phẩm đã chọn
-        checkboxes.forEach(checkbox => {
-            const productId = checkbox.getAttribute('data-id');
-            const quantity = document.getElementById('qty-' + productId).value; // Lấy số lượng hiện tại
-
-            // Gửi cả ID và Số lượng dưới dạng chuỗi (Ví dụ: 15-2, 10-1)
-            selectedIds.push(productId + '-' + quantity);
-        });
-
-        // Tạo URL chuyển hướng (Server sẽ xử lý chuỗi này)
-        const url = '/checkout?items=' + selectedIds.join(',');
-
-        // Chuyển hướng trình duyệt
-        window.location.href = url;
     }
-    /**
-     * Hàm tích/bỏ tích tất cả
-     */
+
     function checkAllItems(source) {
         const checkboxes = document.querySelectorAll('.item-checkbox');
         checkboxes.forEach(checkbox => {
@@ -599,6 +579,34 @@
         updateCartTotal(); // Gọi lại tính toán tổng tiền sau khi tích/bỏ tích tất cả
     }
 
+    function updateSessionCart(productId, newQuantity) {
+        // productId ở đây nên là ID của bản ghi GioHang
+        fetch('/cart/update-quantity/' + productId + '?quantity=' + newQuantity, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Lỗi cập nhật số lượng");
+                }
+            });
+    }
+
+    function goToCheckoutFromCart() {
+        const selected = document.querySelectorAll('.item-checkbox:checked');
+        if (selected.length === 0) {
+            alert("Vui lòng chọn ít nhất một sản phẩm!");
+            return;
+        }
+
+        let url = '/checkout?';
+        selected.forEach((cb, index) => {
+            const pId = cb.getAttribute('data-id');
+            const qty = document.getElementById('qty-' + pId).value;
+            url += `productIds=${pId}&quantities=${qty}${index < selected.length - 1 ? '&' : ''}`;
+        });
+
+        window.location.href = url;
+    }
     // Khởi tạo tổng tiền khi trang vừa tải xong
     window.onload = function() {
         updateCartTotal();

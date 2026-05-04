@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên hệ Halico</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 0 50px; /* Tăng padding hai bên đầu trang */
+            height: 90px;   /* Tăng chiều cao header cho thoáng */
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center; /* Căn giữa tất cả theo chiều dọc */
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+            text-decoration: none;
+            margin-right: 60px; /* Tạo khoảng trống 60px giữa Logo và Menu */
+            flex-shrink: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px; /* Khoảng cách giữa các mục Trang chủ, Cửa hàng... */
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap; /* Giúp dòng "Xin chào..." không bị xuống dòng */
+        }
+
+        .nav-links a, .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover { color: #A52A2A; }
+
+        .auth-area {
+            margin-left: auto; /* PHÉP MÀU: Tự động chiếm hết khoảng trống bên trái để đẩy mình sang phải */
+            display: flex;
+            align-items: center;
+            gap: 25px; /* Khoảng cách giữa cụm tên và cụm giỏ hàng */
+            flex-shrink: 0;
+        }
+
+        .cart-orders {
+            display: flex;
+            gap: 20px;
+            border-left: 1px solid #EEE;
+            padding-left: 20px;
+            align-items: center;
+        }
+
+        .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        /* CSS THUẦN - ĐÃ TỐI ƯU TỪ VUE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .contact-section {
+            padding: 80px 0;
+            background: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 20px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        /* --- CỘT TRÁI --- */
+        .company-title {
+            color: #A52A2A;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .company-desc {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 14px;
+            color: #333; /* Chuyển text sang tối cho dễ đọc */
+        }
+
+        .info-list .icon {
+            width: 36px;
+            height: 36px;
+            background: #A52A2A;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .info-list a {
+            color: #A52A2A;
+            text-decoration: none;
+        }
+
+        /* --- CỘT PHẢI --- */
+        .form-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #A52A2A;
+            margin-bottom: 15px;
+            text-align: center; /* Căn giữa tiêu đề form giống ảnh mẫu */
+        }
+
+        .form-desc {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #555;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px; /* Bo góc nhẹ cho giống ảnh cũ */
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            border-color: #A52A2A;
+        }
+
+        .contact-form textarea {
+            min-height: 160px;
+            resize: none;
+        }
+
+        .submit-btn {
+            background: #A52A2A;
+            color: #fff;
+            border: none;
+            padding: 10px 35px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #A52A2A;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .contact-section {
+                padding: 40px 0;
+            }
+        }
+    </style>
+</head>
+
+<header class="header">
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria - Own Your Glow</a>
+
+        <div class="nav-links">
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+
+
+        </div>
+
+        <div class="auth-area">
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
+                    <b th:with="userPrincipal=${#authentication.principal}">
+                        <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${userPrincipal.attributes.name}"></span>
+                        <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
+                              th:text="${#authentication.name}"></span>
+                    </b>
+                </span>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
+            </div>
+
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
+
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<body>
+
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-grid">
+
+            <div class="contact-info">
+                <div class="info-card">
+                    <h3 class="company-title">
+                        CÔNG TY CỔ PHẦN NƯƠC HOA VELORIA
+                    </h3>
+
+                    <p class="company-desc">
+                        VELORIA – Khơi nguồn vẻ đẹp vượt thời gian. > Không chỉ là một thương hiệu, VELORIA là sự giao thoa giữa nghệ thuật thủ công tinh xảo và tư duy thẩm mỹ hiện đại. Chúng tôi tin rằng sự sang trọng thực sự nằm ở những chi tiết nhỏ nhất, giúp bạn khẳng định khí chất riêng biệt và tỏa sáng theo cách của chính mình.
+                    </p>
+
+                    <ul class="info-list">
+                        <li>
+                            <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                            <span class="info-text"> P5, Q.8, TPHCMi</span>
+                        </li>
+                        <li>
+                            <span class="icon"><i class="fas fa-phone-alt"></i></span>
+                            <span class="info-text">0904355040/08888 09999</span>
+                        </li>
+                        <li>
+                            <span class="icon"><i class="fas fa-envelope"></i></span>
+                            <span class="info-text">NuochoaVELORIA@gmail.com</span>
+                        </li>
+                        <li>
+                            <span class="icon"><i class="fab fa-facebook-f"></i></span>
+                            <span class="info-text"><a href="" target="_blank">https://www.facebook.com/NuochoaVELORIA/</a></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="contact-form-wrapper">
+                <div class="contact-form">
+                    <h3 class="form-title">LIÊN HỆ VỚI VELORIA</h3>
+
+                    <p class="form-desc">
+                        Vui lòng để lại tin nhắn, chúng tôi xin được tiếp nhận và trả lời sớm nhất.
+                    </p>
+
+                    <div th:if="${successMsg}" style="background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center; border: 1px solid #c3e6cb;">
+                        <span th:text="${successMsg}"></span>
+                    </div>
+
+                    <form th:action="@{/contact}" th:object="${contactData}" method="POST">
+                        <div class="form-group">
+                            <input type="text" th:field="*{fullName}" placeholder="Họ và tên" required />
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" th:field="*{phoneNumber}" placeholder="Số điện thoại" required />
+                        </div>
+                        <div class="form-group">
+                            <textarea th:field="*{message}" placeholder="Nội dung" required></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Gửi đi</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

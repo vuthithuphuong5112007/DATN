@@ -489,7 +489,7 @@
                     <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
                     Giỏ hàng
                     <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
-                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          th:text="'(' + (${totalItems} ?: 0) + ')'">
                           (0)
                     </span>
                     &rarr;
@@ -530,6 +530,7 @@
 
                     <button class="add-to-cart-btn cta-button"
                             th:data-id="${p.idSanPham}"
+                            th:data-auth="${#authorization.expression('isAuthenticated()')}"
                             style="margin-top: 10px; padding: 8px 15px; background-color: #A52A2A; font-size: 0.9em; border: none; cursor: pointer; color: white;">
                         Thêm vào giỏ hàng
                     </button>
@@ -580,22 +581,29 @@
             <a th:href="@{/(nuPage=${nuPage}, namPage=${nuocHoaNamProducts.totalPages - 1}, size=${nuocHoaNamProducts.size})}"
                th:classappend="${nuocHoaNamProducts.last} ? 'disabled'">></a>
         </div>
+            <hr style="margin: 50px auto; width: 80%; border: none; border-top: 1px solid #EEE;">
+            <h3 style="text-align: left; margin-left: 50px; font-size: 1.8em; color: #A52A2A;">CÁC SẢN PHẨM KHÁC</h3>
 
-        <hr style="margin: 50px auto; width: 80%; border: none; border-top: 1px solid #EEE;">
-        <h3 style="text-align: left; margin-left: 50px; font-size: 1.8em; color: #A52A2A;">CÁC SẢN PHẨM KHÁC</h3>
+            <div th:if="${not #lists.isEmpty(otherProducts)}">
+                <div class="product-grid">
+                    <div class="product-card" th:each="p : ${otherProducts}">
+                        <a th:href="@{'/products/detail/' + ${p.idSanPham}}">
+                            <img th:src="@{'/' + ${p.duongDanAnh} + '?v=' + ${p.idSanPham}}"
+                                 th:alt="${p.tenSanPham}"
+                                 class="product-image"/>
+                        </a>
+                        <div class="product-info">
+                            <p class="product-name" th:text="${p.tenSanPham}"></p>
+                            <div class="product-price">
+                                <span class="current-price" th:text="${#numbers.formatDecimal(p.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                            </div>
 
-        <div th:if="${not #lists.isEmpty(otherProducts)}">
-            <div class="product-grid">
-                <div class="product-card" th:each="p : ${otherProducts}">
-                    <a th:href="@{'/products/detail/' + ${p.idSanPham}}">
-                        <img th:src="@{'/' + ${p.duongDanAnh} + '?v=' + ${p.idSanPham}}"
-                             th:alt="${p.tenSanPham}"
-                             class="product-image"/>
-                    </a>
-                    <div class="product-info">
-                        <p class="product-name" th:text="${p.tenSanPham}"></p>
-                        <div class="product-price">
-                            <span class="current-price" th:text="${#numbers.formatDecimal(p.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                            <button class="add-to-cart-btn cta-button"
+                                    th:data-id="${p.idSanPham}"
+                                    th:data-auth="${#authorization.expression('isAuthenticated()')}"
+                                    style="margin-top: 10px; padding: 8px 15px; background-color: #A52A2A; font-size: 0.9em; border: none; cursor: pointer; color: white;">
+                                Thêm vào giỏ hàng
+                            </button>
                         </div>
 
                         <button class="add-to-cart-btn cta-button"

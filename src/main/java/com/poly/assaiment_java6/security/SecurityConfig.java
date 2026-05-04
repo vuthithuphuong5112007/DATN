@@ -1,18 +1,24 @@
 package com.poly.assaiment_java6.security;
 
 import com.poly.assaiment_java6.repository.NguoiDungRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Configuration
 @EnableWebSecurity
@@ -21,7 +27,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
     // Constructor Injection cho CustomUserDetailsService
-    public SecurityConfig(CustomUserDetailsService userDetailsService,  CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomOAuth2UserService customOAuth2UserService) {
         this.userDetailsService = userDetailsService;
         this.customOAuth2UserService = customOAuth2UserService;
     }
@@ -61,11 +67,11 @@ public class SecurityConfig {
 
         // ------------------ CẤU HÌNH ĐĂNG NHẬP -------------------
         .formLogin(form -> form
-            .loginPage("/login")
-            .loginProcessingUrl("/authenticate")
-            .defaultSuccessUrl("/", true) // Dùng true để luôn chuyển về trang chủ
-            .failureUrl("/login?error")
-            .permitAll()
+             .loginPage("/login")
+             .loginProcessingUrl("/authenticate")
+             .defaultSuccessUrl("/", true) // Dùng true để luôn chuyển về trang chủ
+             .failureUrl("/login?error")
+             .permitAll()
         )
 
         // ------------------ CẤU HÌNH ĐĂNG NHẬP OAUTH2 -------------------

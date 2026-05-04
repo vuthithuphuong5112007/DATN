@@ -59,7 +59,7 @@
         <a th:href="@{/admin/danhmuc}" class="active3"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
         <a th:href="@{/admin/donhang}" class="active"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
         <a th:href="@{/admin/khachhang}" class="active2"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
-        <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
+        <a th:href="@{/admin/blog}" class="active-if-on-this-page-blog"><i class="fas fa-blog"></i> Quản lý Blog</a>
         <a th:href="@{/admin/baocaothongke}"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
         <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
     </nav>
@@ -101,6 +101,7 @@
                 <th>Ngày Đặt</th>
                 <th>Tổng Tiền</th>
                 <th>Trạng Thái</th>
+                <th>Người xử lý</th>
                 <th>Thao tác</th>
             </tr>
             </thead>
@@ -113,6 +114,14 @@
                 <td>
                         <span th:class="'status-' + ${#strings.toLowerCase(order.trangThaiDonHang)}"
                               th:text="${order.trangThaiDonHang}"></span>
+                </td>
+                <td>
+                    <div th:if="${order.nguoiThucHien != null}">
+                        <b th:text="${order.nguoiThucHien.hoTen}" style="color: #A52A2A;"></b>
+                        <br>
+                        <small th:text="${order.nguoiThucHien.vaiTro}" style="color: #888;"></small>
+                    </div>
+                    <span th:unless="${order.nguoiThucHien != null}" style="color: #ccc; font-style: italic;">Chưa xử lý</span>
                 </td>
                 <td>
                     <button type="button" th:data-id="${order.idDonHang}" onclick="toggleDetail(this)"
@@ -129,13 +138,22 @@
 <div style="display: none;">
     <table>
         <tr th:fragment="detailContent" th:if="${order}" class="detail-row">
-            <td colspan="6" style="padding: 0;">
+            <td colspan="7" style="padding: 0;">
                 <div class="detail-row-container">
                     <div style="display: flex; gap: 30px; margin-bottom: 20px;">
                         <div style="flex: 1;">
                             <h4 style="color: #A52A2A; margin-top: 0;">Thông tin Giao hàng</h4>
                             <p><b>Người nhận:</b> [[${order.nguoiDung.hoTen}]]</p>
                             <p><b>Địa chỉ:</b> [[${order.diaChiGiaoHang}]]</p>
+
+                            <div th:if="${order.trangThaiDonHang == 'CANCELLED'}"
+                                 style="margin-top: 15px; padding: 10px; background-color: #fceaea; border-left: 4px solid #F44336; border-radius: 4px;">
+                                <p style="margin: 0; color: #d32f2f; font-weight: bold;">
+                                    <i class="fas fa-comment-slash"></i> Lý do hủy từ khách:
+                                </p>
+                                <p style="margin: 5px 0 0 0; font-style: italic; color: #555;"
+                                   th:text="${order.lyDoHuy != null ? order.lyDoHuy : 'Không có lý do cụ thể'}"></p>
+                            </div>
                         </div>
                         <div style="flex: 1;">
                             <h4 style="color: #A52A2A; margin-top: 0;">Cập nhật Trạng thái</h4>
@@ -154,6 +172,15 @@
                                     Lưu
                                 </button>
                             </form>
+                            <div th:if="${order.nguoiThucHien != null}" style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 10px;">
+                                <p style="margin: 0; font-size: 0.9em; color: #555;">
+                                    <i class="fas fa-user-check" style="color: #28a745;"></i>
+                                    Người thực hiện: <b th:text="${order.nguoiThucHien.hoTen}"></b>
+                                </p>
+                                <p style="margin: 0; font-size: 0.8em; color: #888; font-style: italic;">
+                                    Vai trò: <span th:text="${order.nguoiThucHien.vaiTro}"></span>
+                                </p>
+                            </div>
                         </div>
                     </div>
 

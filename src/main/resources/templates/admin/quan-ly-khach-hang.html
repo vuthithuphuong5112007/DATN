@@ -103,6 +103,7 @@
         <a th:href="@{/admin/danhmuc}"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
         <a th:href="@{/admin/donhang}"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
         <a th:href="@{/admin/khachhang}" class="active"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
+        <a th:href="@{/admin/blog}" class="active-if-on-this-page-blog"><i class="fas fa-blog"></i> Quản lý Blog</a>
         <a th:href="@{/admin/baocaothongke}"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
     </nav>
 </div>
@@ -188,7 +189,13 @@
             <table class="product-table">
                 <thead>
                 <tr>
-                    <th>ID</th><th>Tên Đăng Nhập</th><th>Họ Tên</th><th>Email</th><th>SĐT</th><th>Vai Trò</th>
+                    <th>ID</th>
+                    <th>Tên Đăng Nhập</th>
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Địa chỉ</th>
+                    <th>Vai Trò</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -198,6 +205,7 @@
                     <td th:text="${nd.hoTen}"></td>
                     <td th:text="${nd.email}"></td>
                     <td th:text="${nd.sdt}"></td>
+                    <td th:text="${nd.diaChi}"></td>
                     <td th:text="${nd.vaiTro}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(danhSachNguoiDung)}">
@@ -215,15 +223,48 @@
     function resetKhachHangForm() { window.location.href = '/admin/khachhang'; }
 
     function loadKhachHangToForm(row) {
+        // Cột Khách hàng: ID(0), Tên Đăng Nhập(1), Họ Tên(2), Email(3), SĐT(4), Vai Trò(5), Thao tác(6)
+
+        const idNguoiDung = row.cells[0].textContent;
+        const tenDangNhap = row.cells[1].textContent;
+        const hoTen = row.cells[2].textContent;
+        const email = row.cells[3].textContent;
+        const sdt = row.cells[4].textContent;
+        const diaChi = row.cells[5].textContent.trim();
+        document.getElementById('diaChi').value = diaChi;
+        const vaiTro = row.cells[6].textContent;
+
+
+        // Địa chỉ (Vấn đề: Địa chỉ không hiển thị trong bảng nên không lấy được trực tiếp)
+        // Nếu địa chỉ không có trong bảng, bạn phải nạp nó từ thuộc tính data-address
+        // Hoặc phải gọi AJAX. Tạm thời, chúng ta sẽ để trống hoặc dùng data-attribute.
+
+        // --- ĐỔ DỮ LIỆU VÀO FORM ---
         document.getElementById('idNguoiDung').value = row.cells[0].textContent;
         document.getElementById('tenDangNhap').value = row.cells[1].textContent;
         document.getElementById('hoTen').value = row.cells[2].textContent;
         document.getElementById('email').value = row.cells[3].textContent;
         document.getElementById('sdt').value = row.cells[4].textContent;
-        document.getElementById('vaiTro').value = row.cells[5].textContent;
+        document.getElementById('diaChi').value = row.cells[5].textContent.trim();
+        document.getElementById('vaiTro').value = vaiTro;
+
+        // Reset trường mật khẩu
+        // document.getElementById('matKhau').value = "";
 
         const deleteButton = document.getElementById('btnDeleteKhachHang');
-        deleteButton.disabled = (row.cells[5].textContent === 'OWNER');
+        if (vaiTro === 'OWNER') {
+            deleteButton.disabled = true; // Khóa nút xóa nếu là OWNER
+            deleteButton.style.opacity = '0.5'; // Làm mờ nút cho dễ nhận biết
+            deleteButton.style.pointerEvents = 'none';
+            deleteButton.title = "Không thể xóa tài khoản Quản trị viên hệ thống";
+        } else {
+            deleteButton.disabled = false;
+            deleteButton.style.opacity = '1';
+            deleteButton.title = "";
+            deleteButton.style.pointerEvents = 'auto';
+        }
+        // Kích hoạt nút Xóa
+        document.getElementById('btnDeleteKhachHang').disabled = false;
         document.querySelector('.btn-add').innerHTML = '<i class="fas fa-save"></i> Cập nhật Khách Hàng';
     }
 

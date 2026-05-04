@@ -310,15 +310,18 @@
     <h2>Veloria Admin</h2>
     <nav>
         <a href="#" class="active"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a th:href="@{/admin/sanpham}"
-           class="active-if-on-this-page"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
-        <a th:href="@{/admin/danhmuc}"
-           class="active-if-on-this-page1"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
+        <a th:href="@{/admin/sanpham}" class="active-if-on-this-page"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
+        <a th:href="@{/admin/danhmuc}" class="active-if-on-this-page1"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
         <a th:href="@{/admin/donhang}" class="active-if-on-this-page3"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
+
         <a th:href="@{/admin/khachhang}"
            class="active-if-on-this-page2"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
+        <a th:href="@{/admin/contacts}" class="active-if-on-this-page2">
+            <i class="fas fa-users"></i> Quản lý Góp ý
+        </a>
 
         <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
+        <a th:href="@{/admin/blog}" class="active-if-on-this-page-blog"><i class="fas fa-blog"></i> Quản lý Blog</a>
         <a th:href="@{/admin/baocaothongke}"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
         <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
         <hr style="border-top: 1px solid #eee; margin: 10px 20px;">
