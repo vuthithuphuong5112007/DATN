@@ -459,6 +459,7 @@
             <a th:href="@{/}">Trang Chủ</a>
             <a th:href="@{/shop}">Cửa Hàng</a>
             <a th:href="@{/contact}">Liên Hệ</a>
+            <a th:href="@{/blog/danh-sach}" style="margin-right: 20px; text-decoration: none; color: #333;">Bài Viết</a>
 
             <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
                 <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
@@ -580,32 +581,32 @@
                th:classappend="${nuocHoaNamProducts.last} ? 'disabled'">></a>
         </div>
 
-            <hr style="margin: 50px auto; width: 80%; border: none; border-top: 1px solid #EEE;">
-            <h3 style="text-align: left; margin-left: 50px; font-size: 1.8em; color: #A52A2A;">CÁC SẢN PHẨM KHÁC</h3>
+        <hr style="margin: 50px auto; width: 80%; border: none; border-top: 1px solid #EEE;">
+        <h3 style="text-align: left; margin-left: 50px; font-size: 1.8em; color: #A52A2A;">CÁC SẢN PHẨM KHÁC</h3>
 
-            <div th:if="${not #lists.isEmpty(otherProducts)}">
-                <div class="product-grid">
-                    <div class="product-card" th:each="p : ${otherProducts}">
-                        <a th:href="@{'/products/detail/' + ${p.idSanPham}}">
-                            <img th:src="@{'/' + ${p.duongDanAnh} + '?v=' + ${p.idSanPham}}"
-                                 th:alt="${p.tenSanPham}"
-                                 class="product-image"/>
-                        </a>
-                        <div class="product-info">
-                            <p class="product-name" th:text="${p.tenSanPham}"></p>
-                            <div class="product-price">
-                                <span class="current-price" th:text="${#numbers.formatDecimal(p.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
-                            </div>
-
-                            <button class="add-to-cart-btn cta-button"
-                                    th:data-id="${p.idSanPham}"
-                                    style="margin-top: 10px; padding: 8px 15px; background-color: #A52A2A; font-size: 0.9em; border: none; cursor: pointer; color: white;">
-                                Thêm vào giỏ hàng
-                            </button>
+        <div th:if="${not #lists.isEmpty(otherProducts)}">
+            <div class="product-grid">
+                <div class="product-card" th:each="p : ${otherProducts}">
+                    <a th:href="@{'/products/detail/' + ${p.idSanPham}}">
+                        <img th:src="@{'/' + ${p.duongDanAnh} + '?v=' + ${p.idSanPham}}"
+                             th:alt="${p.tenSanPham}"
+                             class="product-image"/>
+                    </a>
+                    <div class="product-info">
+                        <p class="product-name" th:text="${p.tenSanPham}"></p>
+                        <div class="product-price">
+                            <span class="current-price" th:text="${#numbers.formatDecimal(p.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                         </div>
+
+                        <button class="add-to-cart-btn cta-button"
+                                th:data-id="${p.idSanPham}"
+                                style="margin-top: 10px; padding: 8px 15px; background-color: #A52A2A; font-size: 0.9em; border: none; cursor: pointer; color: white;">
+                            Thêm vào giỏ hàng
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 </main>
 
@@ -624,7 +625,7 @@
                 </p>
 
                 <!-- SỬA Ở ĐÂY -->
-                <a th:href="@{/templates/blog_vinh/1}" class="read-more">
+                <a th:href="@{/blog/bai-viet/1}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>
@@ -640,7 +641,7 @@
                     Hơn cả một món quà, mùi hương nước hoa chính là sự thấu hiểu và yêu thương sâu sắc nhất...
                 </p>
 
-                <a th:href="@{/templates/blog_vinh/2}" class="read-more">
+                <a th:href="@{/blog/bai-viet/2}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>
@@ -656,7 +657,7 @@
                     Hãy cùng nhau chậm lại một chút, tận hưởng những khoảnh khắc yên bình...
                 </p>
 
-                <a th:href="@{/templates/blog_vinh/3}" class="read-more">
+                <a th:href="@{/blog/bai-viet/3}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>
@@ -672,7 +673,7 @@
                     Tặng nước hoa mang ý nghĩa gửi gắm tình cảm tinh tế...
                 </p>
 
-                <a th:href="@{/templates/blog_vinh/4}" class="read-more">
+                <a th:href="@{/blog/bai-viet/4}" class="read-more">
                     Đọc thêm →
                 </a>
             </div>

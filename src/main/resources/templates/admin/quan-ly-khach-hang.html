@@ -7,10 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-        /* Tông màu chủ đạo */
         :root {
-            --color-primary: #b31640; /* Hồng Đất - Màu nhấn chính */
-            --color-secondary: #F8E8EE; /* Hồng nhạt - Nền phụ */
+            --color-primary: #b31640;
+            --color-secondary: #F8E8EE;
             --color-text: #333333;
             --color-text-light: #555555;
             --color-bg: #FFFFFF;
@@ -21,48 +20,25 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: #f4f7f6;
             color: var(--color-text);
             display: flex;
             min-height: 100vh;
         }
 
-        /* 1. Sidebar */
         .sidebar {
-            width: 250px;
-            background-color: var(--color-bg);
+            width: 250px; background-color: var(--color-bg);
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-            padding: 20px 0;
-            transition: width 0.3s;
-            position: sticky;
-            top: 0;
+            padding: 20px 0; position: sticky; top: 0;
         }
 
-        .sidebar h2 {
-            text-align: center;
-            color: var(--color-primary);
-            margin-bottom: 30px;
-            font-size: 24px;
-            font-weight: 600;
-        }
+        .sidebar h2 { text-align: center; color: var(--color-primary); margin-bottom: 30px; }
 
         .sidebar nav a {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            text-decoration: none;
-            color: var(--color-text-light);
-            font-size: 16px;
-            border-left: 5px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .sidebar nav a i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
+            display: flex; align-items: center; padding: 15px 20px;
+            text-decoration: none; color: var(--color-text-light);
+            border-left: 5px solid transparent; transition: all 0.2s;
         }
 
         .sidebar nav a:hover, .sidebar nav a.active {
@@ -72,188 +48,49 @@
             font-weight: 600;
         }
 
-        /* 2. Khu vực chính */
-        .main-content {
-            flex-grow: 1;
-            padding: 30px;
-        }
+        .main-content { flex-grow: 1; padding: 30px; }
 
-        /* 3. Header */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--color-text);
-        }
-
-        .user-info {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 20px; border-bottom: 1px solid #eee;
         }
 
         .user-avatar {
-            width: 35px;
-            height: 35px;
-            line-height: 35px;
-            text-align: center;
-            border-radius: 50%;
-            background-color: #d9534f;
-            color: white;
-            cursor: pointer;
+            width: 35px; height: 35px; border-radius: 50%;
+            background-color: #d9534f; color: white;
+            text-align: center; line-height: 35px; cursor: pointer;
         }
 
-        .user-dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background-color: var(--color-bg);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 6px;
-            z-index: 10;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s ease-out;
-            min-width: 150px;
-        }
-
-        .user-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .user-dropdown a {
-            display: block;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: var(--color-text);
-            font-size: 14px;
-        }
-
-        .user-dropdown a:hover {
-            background-color: var(--color-secondary);
-            color: var(--color-primary);
-        }
-
-        /* --- CSS CHO KHỐI QUẢN LÝ --- */
         .product-container {
-            background-color: var(--color-bg);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: var(--color-bg); padding: 30px;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        /* BỐ CỤC FORM 3 CỘT */
         .input-form-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding-bottom: 30px;
-            margin-bottom: 30px;
-            border-bottom: 2px dashed var(--color-secondary);
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            padding-bottom: 30px; margin-bottom: 30px; border-bottom: 2px dashed var(--color-secondary);
         }
 
-        .form-group {
-            grid-column: span 1;
-        }
-        .form-group.full-width {
-            grid-column: span 3;
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;
         }
 
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
+        .action-buttons { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+        .action-buttons button { padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
+        .btn-add { background-color: var(--color-success); color: white; }
+        .btn-delete { background-color: var(--color-danger); color: white; }
+        .btn-reset { background-color: #007BFF; color: white; }
 
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--color-primary);
-            outline: none;
-            box-shadow: 0 0 0 2px var(--color-secondary);
-        }
+        .product-table { width: 100%; border-collapse: collapse; }
+        .product-table th, .product-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .product-table th { background-color: var(--color-primary); color: white; }
+        .product-table tr:hover { background-color: var(--color-secondary); cursor: pointer; }
 
-        /* THANH CHỨC NĂNG (Nút Thêm/Sửa/Xóa/Reset) */
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .action-buttons button {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: opacity 0.2s, transform 0.1s;
-        }
-
-        .action-buttons button:active {
-            transform: translateY(1px);
-        }
-
-        /* Màu nút */
-        .btn-add, .btn-update {
-            background-color: var(--color-success);
-            color: white;
-        }
-        .btn-delete {
-            background-color: var(--color-danger);
-            color: white;
-        }
-        .btn-reset {
-            background-color: #007BFF;
-            color: white;
-        }
-
-        /* BẢNG DỮ LIỆU */
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        .product-table th, .product-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .product-table th {
-            background-color: var(--color-primary);
-            color: white;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .product-table tr:hover {
-            background-color: var(--color-secondary);
-            cursor: pointer;
-        }
+        .search-container { margin-bottom: 20px; display: flex; justify-content: flex-end; }
+        .search-form { display: flex; gap: 10px; }
+        .search-input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 300px; }
     </style>
 </head>
 <body>
@@ -264,128 +101,94 @@
         <a th:href="@{/admin/home}"><i class="fas fa-chart-line"></i> Dashboard</a>
         <a th:href="@{/admin/sanpham}"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
         <a th:href="@{/admin/danhmuc}"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
-        <a th:href="@{/admin/donhang}" class="active3"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
+        <a th:href="@{/admin/donhang}"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
         <a th:href="@{/admin/khachhang}" class="active"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
-        <a href="#"><i class="fas fa-tag"></i> Quản lý Khuyến mãi</a>
         <a th:href="@{/admin/baocaothongke}"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
-        <a href="#"><i class="fas fa-cog"></i> Cài đặt Hệ thống</a>
     </nav>
 </div>
 
 <div class="main-content">
-
     <div class="header">
         <h1>Quản lý Tài khoản</h1>
-
         <div class="user-info">
-            <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 15px; position: relative;">
-                <span style="white-space: nowrap;">
-                    Chào, <b sec:authentication="name">Admin</b>
-                </span>
-                <div class="user-avatar" id="avatar-toggle" title="Menu người dùng">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <div class="user-dropdown" id="user-dropdown-menu">
-                    <a href="#"><i class="fas fa-user-circle"></i> Hồ sơ</a>
-                    <a th:href="@{/logout}" id="logout-link" style="color: var(--color-danger);"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
-                </div>
-            </div>
-            <div sec:authorize="!isAuthenticated()">
-                <a th:href="@{/login}" class="cta-button" style="background-color: #5cb85c;">Đăng nhập</a>
+            <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 15px;">
+                <span>Chào, <b sec:authentication="name">Admin</b></span>
+                <div class="user-avatar" id="avatar-toggle"><i class="fas fa-user-tie"></i></div>
             </div>
         </div>
     </div>
 
-    <div th:if="${message}" class="alert-success" style="padding: 10px; margin-top: 20px; margin-bottom: 20px; border: 1px solid var(--color-success); background-color: #D4EDDA; color: #155724; border-radius: 4px;" th:text="${message}"></div>
-<!--    <div th:if="${error}" class="alert-danger" style="padding: 10px; margin-top: 20px; margin-bottom: 20px; border: 1px solid var(&#45;&#45;color-danger); background-color: #F8D7DA; color: #721C24; border-radius: 4px;" th:text="${error}"></div>-->
+    <div th:if="${message}" class="alert-success"
+         style="padding: 15px; margin: 20px 0; background-color: #D4EDDA; color: #155724; border-radius: 4px;"
+         th:text="${message}"></div>
+
+    <div th:if="${error}" class="alert-danger"
+         style="padding: 15px; margin: 20px 0; background-color: #F8D7DA; color: #721C24; border: 1px solid #f5c6cb; border-radius: 4px;"
+         th:text="${error}"></div>
 
     <div class="product-container">
-
         <form th:action="@{/admin/khachhang/save}" th:object="${nguoiDung}" method="post">
-            <h3 style="color: var(--color-primary); margin-top: 0; padding-bottom: 10px;">
-                <i class="fas fa-user-plus"></i> Thông tin Khách hàng
-            </h3>
-
+            <h3 style="color: var(--color-primary);"><i class="fas fa-user-plus"></i> Thông tin Khách hàng</h3>
             <div class="input-form-grid">
-
                 <input type="hidden" th:field="*{idNguoiDung}" id="idNguoiDung"/>
-
                 <div class="form-group">
-                    <label for="hoTen">Họ và Tên</label>
+                    <label>Họ và Tên</label>
                     <input type="text" th:field="*{hoTen}" id="hoTen" required>
-                    <div class="text-danger" th:if="${#fields.hasErrors('hoTen')}" th:errors="*{hoTen}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="tenDangNhap">Tên Đăng Nhập</label>
+                    <label>Tên Đăng Nhập</label>
                     <input type="text" th:field="*{tenDangNhap}" id="tenDangNhap" required>
-                    <div class="text-danger" th:if="${#fields.hasErrors('tenDangNhap')}" th:errors="*{tenDangNhap}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="matKhau">Mật Khẩu</label>
-                    <input type="password" th:field="*{matKhau}" id="matKhau"
-                           th:required="${nguoiDung.idNguoiDung == null}"
-                           placeholder="Để trống nếu không đổi mật khẩu">
-                    <div class="text-danger" th:if="${#fields.hasErrors('matKhau')}" th:errors="*{matKhau}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
-
+                    <label>Mật Khẩu</label>
+                    <input type="password" th:field="*{matKhau}" id="matKhau" placeholder="Để trống nếu không đổi">
                 </div>
-
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label>Email</label>
                     <input type="email" th:field="*{email}" id="email" required>
-                    <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="sdt">Số Điện Thoại</label>
+                    <label>Số Điện Thoại</label>
                     <input type="text" th:field="*{sdt}" id="sdt">
-                    <div class="text-danger" th:if="${#fields.hasErrors('sdt')}" th:errors="*{sdt}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="vaiTro">Vai Trò</label>
-                    <select th:field="*{vaiTro}" id="vaiTro" required>
-                        <option th:each="role : ${roles}"
-                                th:value="${role}"
-                                th:text="${role}"
-                                th:disabled="${role == 'OWNER'}"></option>
+                    <label>Vai Trò</label>
+                    <select th:field="*{vaiTro}" id="vaiTro">
+                        <option th:each="role : ${roles}" th:value="${role}" th:text="${role}" th:disabled="${role == 'OWNER'}"></option>
                     </select>
                 </div>
-
-                <div class="form-group full-width">
-                    <label for="diaChi">Địa chỉ chi tiết</label>
+                <div class="form-group" style="grid-column: span 3;">
+                    <label>Địa chỉ chi tiết</label>
                     <textarea th:field="*{diaChi}" id="diaChi" rows="2"></textarea>
-                    <div class="text-danger" th:if="${#fields.hasErrors('diaChi')}" th:errors="*{diaChi}" style="color: red; font-size: 12px; margin-top: 5px;"></div>
                 </div>
-
             </div>
 
             <div class="action-buttons">
-                <button type="submit" class="btn-add btn-update"><i class="fas fa-save"></i> Lưu Khách Hàng</button>
-                <button type="button" class="btn-delete" id="btnDeleteKhachHang"
-                        onclick="confirmDeleteKhachHangFromForm()"
-                        th:disabled="${nguoiDung.idNguoiDung == null or nguoiDung.vaiTro == 'OWNER'}">
-                    <i class="fas fa-trash-alt"></i> Xóa
-                </button>
+                <button type="submit" class="btn-add"><i class="fas fa-save"></i> Lưu Khách Hàng</button>
+                <button type="button" class="btn-delete" id="btnDeleteKhachHang" onclick="confirmDeleteKhachHangFromForm()" disabled><i class="fas fa-trash-alt"></i> Xóa</button>
                 <button type="button" class="btn-reset" onclick="resetKhachHangForm()"><i class="fas fa-redo"></i> Reset Form</button>
             </div>
         </form>
 
-        <h3 style="color: var(--color-text); margin-top: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--color-secondary);">
+        <h3 style="border-bottom: 2px solid var(--color-secondary); padding-bottom: 10px;">
             <i class="fas fa-table"></i> Danh sách Tài khoản
         </h3>
+
+        <div class="search-container">
+            <form th:action="@{/admin/khachhang/search}" method="get" class="search-form">
+                <input type="text" name="keyword" th:value="${keyword}" class="search-input" placeholder="Nhập họ tên chính xác để tìm...">
+                <button type="submit" class="btn-reset"><i class="fas fa-search"></i> Tìm kiếm</button>
+                <a th:href="@{/admin/khachhang}" class="btn-reset" style="text-decoration: none; background-color: #6c757d; padding: 10px 15px; border-radius: 4px;">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+            </form>
+        </div>
 
         <div style="overflow-x: auto;">
             <table class="product-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Tên Đăng Nhập</th>
-                    <th>Họ Tên</th>
-                    <th>Email</th>
-                    <th>SĐT</th>
-                    <th>Vai Trò</th>
+                    <th>ID</th><th>Tên Đăng Nhập</th><th>Họ Tên</th><th>Email</th><th>SĐT</th><th>Vai Trò</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -397,116 +200,39 @@
                     <td th:text="${nd.sdt}"></td>
                     <td th:text="${nd.vaiTro}"></td>
                 </tr>
+                <tr th:if="${#lists.isEmpty(danhSachNguoiDung)}">
+                    <td colspan="6" style="text-align: center; padding: 30px; color: var(--color-danger); font-weight: bold;">
+                        <i class="fas fa-exclamation-triangle"></i> KHÔNG CÓ TÀI KHOẢN NÀY
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>
-
     </div>
 </div>
 
 <script>
-    // --- SCRIPT CHUNG CHO ADMIN LAYOUT ---
-    document.addEventListener('DOMContentLoaded', function() {
-        // Logic Avatar Dropdown
-        const avatarToggle = document.getElementById('avatar-toggle');
-        const userDropdown = document.getElementById('user-dropdown-menu');
+    function resetKhachHangForm() { window.location.href = '/admin/khachhang'; }
 
-        if (avatarToggle && userDropdown) {
-            avatarToggle.addEventListener('click', function() {
-                userDropdown.classList.toggle('show');
-            });
-        }
-        document.addEventListener('click', function(event) {
-            if (userDropdown && avatarToggle && userDropdown) {
-                if (!avatarToggle.contains(event.target) && !userDropdown.contains(event.target)) {
-                    userDropdown.classList.remove('show');
-                }
-            }
-        });
-
-        // --- LOGIC RIÊNG CHO TÀI KHOẢN ---
-
-        // Khởi tạo trạng thái nút xóa khi trang tải (nếu có dữ liệu edit được flash)
-        const idInput = document.getElementById('idNguoiDung');
-        const deleteButton = document.getElementById('btnDeleteKhachHang');
-
-        // Nếu ID đã có giá trị (tức là đang ở chế độ SỬA), kích hoạt nút XÓA
-        if (idInput && idInput.value) {
-            deleteButton.disabled = false;
-        } else if (deleteButton) {
-            deleteButton.disabled = true;
-        }
-
-    });
-    // --- HẾT SCRIPT CHUNG ---
-
-
-    // Hàm reset form Tài khoản
-    function resetKhachHangForm() {
-        // Chuyển hướng về trang GET chính để reset đối tượng th:object (Form trống)
-        window.location.href = '/admin/khachhang';
-    }
-
-    // Hàm xác nhận xóa từ nút Xóa trên Form
-    function confirmDeleteKhachHangFromForm() {
-        const id = document.getElementById('idNguoiDung').value;
-        const name = document.getElementById('hoTen').value;
-        if (id) {
-            if (confirm("Bạn có chắc chắn muốn xóa khách hàng: " + name + " (ID: " + id + ") này không?")) {
-                // Điều hướng đến URL xóa trong Controller
-                window.location.href = '/admin/khachhang/delete/' + id;
-            }
-        } else {
-            alert("Vui lòng chọn một khách hàng từ bảng hoặc nạp ID hợp lệ trước khi xóa.");
-        }
-    }
-
-    // Hàm nạp dữ liệu từ bảng lên Form khi click (Cho Tài khoản )
     function loadKhachHangToForm(row) {
-        // Cột Khách hàng: ID(0), Tên Đăng Nhập(1), Họ Tên(2), Email(3), SĐT(4), Vai Trò(5), Thao tác(6)
-
-        const idNguoiDung = row.cells[0].textContent;
-        const tenDangNhap = row.cells[1].textContent;
-        const hoTen = row.cells[2].textContent;
-        const email = row.cells[3].textContent;
-        const sdt = row.cells[4].textContent;
-        const vaiTro = row.cells[5].textContent;
-
-        // Địa chỉ (Vấn đề: Địa chỉ không hiển thị trong bảng nên không lấy được trực tiếp)
-        // Nếu địa chỉ không có trong bảng, bạn phải nạp nó từ thuộc tính data-address
-        // Hoặc phải gọi AJAX. Tạm thời, chúng ta sẽ để trống hoặc dùng data-attribute.
-
-        // --- ĐỔ DỮ LIỆU VÀO FORM ---
         document.getElementById('idNguoiDung').value = row.cells[0].textContent;
         document.getElementById('tenDangNhap').value = row.cells[1].textContent;
         document.getElementById('hoTen').value = row.cells[2].textContent;
         document.getElementById('email').value = row.cells[3].textContent;
         document.getElementById('sdt').value = row.cells[4].textContent;
-        document.getElementById('vaiTro').value = vaiTro;
-
-        // Reset trường mật khẩu
-        // document.getElementById('matKhau').value = "";
+        document.getElementById('vaiTro').value = row.cells[5].textContent;
 
         const deleteButton = document.getElementById('btnDeleteKhachHang');
-        if (vaiTro === 'OWNER') {
-            deleteButton.disabled = true; // Khóa nút xóa nếu là OWNER
-            deleteButton.style.opacity = '0.5'; // Làm mờ nút cho dễ nhận biết
-            deleteButton.title = "Không thể xóa tài khoản Quản trị viên hệ thống";
-        } else {
-            deleteButton.disabled = false;
-            deleteButton.style.opacity = '1';
-            deleteButton.title = "";
-        }
-        // Kích hoạt nút Xóa
-        document.getElementById('btnDeleteKhachHang').disabled = false;
+        deleteButton.disabled = (row.cells[5].textContent === 'OWNER');
         document.querySelector('.btn-add').innerHTML = '<i class="fas fa-save"></i> Cập nhật Khách Hàng';
+    }
 
-        // Reset mật khẩu và đổi tên nút lưu
-        document.getElementById('matKhau').value = "";
-        document.querySelector('.btn-add').innerHTML = '<i class="fas fa-save"></i> Cập nhật Khách Hàng';
-        console.log('Đã tải Khách hàng ID: ' + idNguoiDung + ' lên form.');
+    function confirmDeleteKhachHangFromForm() {
+        const id = document.getElementById('idNguoiDung').value;
+        if (id && confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) {
+            window.location.href = '/admin/khachhang/delete/' + id;
+        }
     }
 </script>
-
 </body>
 </html>

@@ -13,4 +13,8 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, Integer> {
     Optional<NguoiDung> findByEmail(String email);
     List<NguoiDung> findByVaiTro(String vaiTro);
     boolean existsByTenDangNhap(String tenDangNhap);
+    // Thêm dòng này để tìm kiếm theo tên
+    // Tìm tất cả những người mà tên có chứa cụm từ (không phân biệt hoa thường)
+    List<NguoiDung> findByHoTenContainingIgnoreCase(String hoTen);
+
 }

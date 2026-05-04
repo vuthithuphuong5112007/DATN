@@ -104,4 +104,36 @@ public class AdminKhachHangController {
         }
         return "redirect:/admin/khachhang";
     }
+
+    //tìm kiếm khách hàng
+    @GetMapping("/search")
+    public String searchKhachHang(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
+        List<NguoiDung> ketQuaTimKiem;
+
+        // Nếu người dùng không nhập gì hoặc chỉ nhập khoảng trắng
+        if (keyword == null || keyword.trim().isEmpty()) {
+            ketQuaTimKiem = nguoiDungService.findAll(); // Trả về tất cả danh sách
+        } else {
+            // Tìm kiếm gần đúng (chứa cụm từ) và không phân biệt hoa thường
+            ketQuaTimKiem = nguoiDungService.searchByHoTen(keyword.trim());
+
+            // Nếu tìm kiếm mà thực sự không có ai khớp cụm từ đó
+            if (ketQuaTimKiem.isEmpty()) {
+                model.addAttribute("error", "Không tìm thấy khách hàng nào có tên chứa: " + keyword);
+            }
+        }
+
+        model.addAttribute("danhSachNguoiDung", ketQuaTimKiem);
+        model.addAttribute("keyword", keyword); // Giữ lại chữ đã gõ trên ô input
+
+        // Nạp lại dữ liệu cho Form
+        if (!model.containsAttribute("nguoiDung")) {
+            NguoiDung newNguoiDung = new NguoiDung();
+            newNguoiDung.setVaiTro("USER");
+            model.addAttribute("nguoiDung", newNguoiDung);
+        }
+        model.addAttribute("roles", new String[]{"USER", "ADMIN", "OWNER"});
+
+        return "admin/quan-ly-khach-hang";
+    }
 }

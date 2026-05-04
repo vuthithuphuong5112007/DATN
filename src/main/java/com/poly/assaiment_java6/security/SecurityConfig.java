@@ -48,7 +48,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             // Trang công khai
             // FIX: Thêm "/encode-test" vào danh sách permitAll()
-            .requestMatchers("/", "/products/**", "/register", "/css/**", "/js/**", "/api/**", "/*.jpg", "/api/products/**").permitAll()
+            .requestMatchers("/", "/products/**", "/register","/forgot-password/**","/verify-otp/**","/reset-account/**", "/css/**", "/js/**", "/api/**", "/*.jpg", "/api/products/**").permitAll()
             // Khu vực Quản trị Thống kê (Chỉ cho OWNER)
             .requestMatchers("/admin/statistics/**", "/api/statistics/**").hasAuthority("OWNER")
             // Khu vực Quản trị Chung (Cho OWNER và EMPLOYEE)
