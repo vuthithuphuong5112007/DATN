@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác thực OTP - Veloria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#fbf7f4] flex items-center justify-center min-h-screen">
+<div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+    <h2 class="text-3xl font-bold text-[#4a1f1f] text-center mb-4">Nhập Mã OTP</h2>
+    <p class="text-center text-gray-600 mb-6" th:text="${message}"></p>
+
+    <div th:if="${error}" class="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-center" th:text="${error}"></div>
+
+    <form th:action="@{/verify-otp}" method="POST" class="space-y-4">
+        <input type="text" name="otp" placeholder="Nhập mã 6 số" required
+               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8c2a39] outline-none text-center text-2xl tracking-widest">
+        <button type="submit" class="w-full bg-[#8c2a39] text-white py-3 rounded-lg font-semibold hover:bg-[#a84857] transition">Xác Nhận</button>
+    </form>
+</div>
+</body>
+</html>

@@ -55,6 +55,12 @@
     </p>
   </div>
 
+    <!-- Thông báo thành công từ trang quên mật khẩu -->
+    <div th:if="${param.success}" class="text-sm font-medium text-green-700 bg-green-100 p-3 rounded-xl border border-green-300 mb-4">
+        Mật khẩu mới đã được gửi vào Email. Vui lòng kiểm tra và đăng nhập lại.
+    </div>
+
+
   <!-- Form Đăng nhập. Chú ý: action="/authenticate" khớp với SecurityConfig -->
   <form class="space-y-6" method="POST" action="/authenticate">
 
@@ -103,11 +109,11 @@
         </label>
       </div>
 
-      <div class="text-sm">
-        <a href="#" class="font-medium text-accent-color hover:text-red-800">
-          Quên mật khẩu?
-        </a>
-      </div>
+        <div class="text-sm">
+            <a th:href="@{/forgot-password}" class="font-medium text-accent-color hover:text-red-800">
+                Quên mật khẩu?
+            </a>
+        </div>
     </div>
 
     <!-- Nút Đăng Nhập -->
