@@ -49,20 +49,7 @@ public class ChiTieSanPhamController {
         return "chitietsanpham";
     }
 
-    // 2. Lấy danh sách đánh giá
-    @ResponseBody
-    @GetMapping("/products/detail/{productId}/reviews")
-    public List<Danhgia> getReviewsByProduct(@PathVariable("productId") Long productId) {
-        return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId);
-    }
 
-    // 3. Thêm đánh giá mới
-    @ResponseBody
-    @PostMapping("/products/detail/reviews")
-    public Danhgia createReview(@RequestBody Danhgia danhgia) {
-        danhgia.setCreatedAt(LocalDateTime.now());
-        return reviewRepository.save(danhgia);
-    }
 
     // 4. Xóa đánh giá (ĐÃ THÊM BẢO MẬT CHẶN Ở SERVER)
     @ResponseBody
