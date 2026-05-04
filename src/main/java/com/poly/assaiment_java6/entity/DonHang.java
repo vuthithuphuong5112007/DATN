@@ -48,4 +48,7 @@ public class DonHang {
     @ManyToOne
     @JoinColumn(name = "ID_NguoiThucHien") // Phải khớp hoàn toàn với tên cột bạn vừa ALTER
     private NguoiDung nguoiThucHien;
+
+    @Column(name = "PhuongThucThanhToan") // Tên này phải khớp với tên cột bạn ALTER trong SQL
+    private String phuongThucThanhToan;
 }

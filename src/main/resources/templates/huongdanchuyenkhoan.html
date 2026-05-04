@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Hướng dẫn chuyển khoản - Veloria</title>
+    <style>
+        .container { max-width: 600px; margin: 50px auto; text-align: center; font-family: sans-serif; border: 1px solid #eee; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .qr-code { width: 250px; border: 5px solid #F8E8EE; border-radius: 10px; margin: 20px 0; }
+        .btn-done { background-color: #b31640; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; transition: 0.3s; }
+        .btn-done:hover { background-color: #7c2323; }
+        .info-box { background: #fdf2f2; padding: 15px; border-radius: 8px; text-align: left; display: inline-block; width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 style="color: #b31640;">Sắp hoàn tất rồi!</h2>
+    <p>Vui lòng quét mã QR bên dưới để thanh toán cho đơn hàng <b>#[[${order.idDonHang}]]</b></p>
+
+    <img class="qr-code"
+         th:src="'https://img.vietqr.io/image/MB-123456789-compact.png?amount=' + ${order.tongTien} + '&addInfo=VELORIA' + ${order.idDonHang}"
+         alt="Mã QR thanh toán">
+
+    <div class="info-box">
+        <p>🏦 Ngân hàng: <b>MB Bank (Quân Đội)</b></p>
+        <p>👤 Chủ tài khoản: <b>Admin Veloria-Own Your Glow</b></p>
+        <p>🔢 Số tài khoản: <b>123456789</b></p>
+        <p>💰 Số tiền: <b style="color: #b31640;">[[${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')}]] VNĐ</b></p>
+        <p>📝 Nội dung: <b>VELORIA [[${order.idDonHang}]]</b></p>
+    </div>
+
+    <p style="font-size: 0.9em; color: #666; margin-top: 15px;">
+        <i>Hệ thống sẽ tự động xác nhận sau khi nhận được tiền.</i>
+    </p>
+
+    <a th:href="@{/}" class="btn-done">Quay về trang chủ</a>
+</div>
+</body>
+</html>

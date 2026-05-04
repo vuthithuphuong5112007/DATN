@@ -1,6 +1,5 @@
 package com.poly.assaiment_java6.controller;
 
-import com.poly.assaiment_java6.entity.Danhgia;
 import com.poly.assaiment_java6.entity.SanPham;
 import com.poly.assaiment_java6.repository.ReviewRepository;
 import com.poly.assaiment_java6.service.SanPhamService;
@@ -12,8 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
+
 import java.util.NoSuchElementException;
 
 @Controller

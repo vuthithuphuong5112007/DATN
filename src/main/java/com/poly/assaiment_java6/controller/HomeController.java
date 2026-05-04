@@ -126,4 +126,6 @@ public class HomeController {
         // Đăng ký thành công, chuyển hướng người dùng đến trang đăng nhập
         return "redirect:/login?registerSuccess=true";
     }
+
+
 }

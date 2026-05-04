@@ -60,4 +60,32 @@ public class ViewSanPhamController {
 
         return "sanpham";
     }
+
+    @GetMapping("/shop")
+    public String shopPage(
+            @RequestParam(value = "q", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "12") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDTO> sanPhamPage;
+
+        // Kiểm tra nếu có từ khóa tìm kiếm
+        if (keyword != null && !keyword.isEmpty()) {
+            // Sử dụng hàm có sẵn trong Repo của bạn: findProductsByKeyword
+            // Thêm dấu % để tìm kiếm LIKE
+            sanPhamPage = sanPhamRepository.findProductsByKeyword("%" + keyword + "%", pageable);
+        } else {
+            // Sử dụng hàm hiển thị mặc định có sẵn trong Repo của bạn
+            sanPhamPage = sanPhamRepository.findAllActive(pageable);
+        }
+
+        // Đẩy dữ liệu sang HTML theo đúng tên biến bạn đang dùng trong file shop.html
+        model.addAttribute("sanPhams", sanPhamPage.getContent());
+        model.addAttribute("sanPhamPage", sanPhamPage);
+        model.addAttribute("currentKeyword", keyword);
+
+        return "shop";
+    }
 }
