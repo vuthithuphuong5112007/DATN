@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đánh giá sản phẩm | Veloria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #A52A2A;
+            --dark-color: #1a1a1a;
+            --gold-color: #ffc107;
+            --bg-color: #f8f9fa;
+            --text-muted: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .review-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+        .review-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .review-header h2 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.8em;
+            text-transform: uppercase;
+        }
+
+        .product-card {
+            display: flex;
+            align-items: center;
+            background: #fdfdfd;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #f0f0f0;
+        }
+        .product-card img {
+            width: 80px; height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+        .product-name { font-weight: 600; font-size: 1.1em; color: var(--dark-color); }
+
+        .rating-section { text-align: center; margin-bottom: 30px; }
+        #stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: row-reverse;
+        }
+        .star {
+            font-size: 40px;
+            color: #ddd;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .star:hover, .star:hover ~ .star, .star.active, .star.active ~ .star {
+            color: var(--gold-color);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1.5px solid #eee;
+            resize: none;
+            box-sizing: border-box;
+        }
+        textarea:focus { border-color: var(--primary-color); outline: none; }
+
+        .actions { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .btn {
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-submit { background: var(--primary-color); color: #fff; }
+        .btn-back { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="review-container">
+    <div class="review-header">
+        <h2>Đánh giá sản phẩm</h2>
+        <p style="color: #888;">Cảm ơn bạn đã tin dùng sản phẩm của Veloria</p>
+    </div>
+
+    <div class="product-card">
+        <img th:src="@{'/' + ${product.duongDanAnh}}" alt="Product">
+        <div>
+            <span class="product-name" th:text="${product.tenSanPham}">Tên nước hoa</span>
+            <div style="font-size: 0.8em; color: #888;">Thương hiệu: Veloria</div>
+        </div>
+    </div>
+
+    <div class="rating-section">
+        <span style="font-weight: 600; color: #666; display: block; margin-bottom: 10px;">Bạn thấy sản phẩm này thế nào?</span>
+        <div id="stars">
+            <span class="star" data-star="5">★</span>
+            <span class="star" data-star="4">★</span>
+            <span class="star" data-star="3">★</span>
+            <span class="star" data-star="2">★</span>
+            <span class="star" data-star="1">★</span>
+        </div>
+    </div>
+
+    <div class="textarea-group">
+        <textarea id="reviewText" placeholder="Hãy chia sẻ cảm nhận của bạn về mùi hương, độ lưu hương..." maxlength="100"></textarea>
+        <div style="text-align: right; font-size: 0.8em; color: #999;"><span id="charCount">0</span>/100 ký tự</div>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-submit" onclick="submitReview()">Gửi đánh giá ngay</button>
+        <a th:href="@{/orders}" class="btn btn-back">Quay lại lịch sử</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let currentRating = 0;
+    const productId = [[${product.idSanPham}]]; // Lấy ID trực tiếp từ đối tượng product
+
+    // Xử lý chọn sao
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            currentRating = parseInt(this.getAttribute('data-star'));
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-star')) <= currentRating) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+    });
+
+    // Đếm ký tự
+    const textarea = document.getElementById('reviewText');
+    textarea.addEventListener('input', function() {
+        document.getElementById('charCount').textContent = this.value.length;
+    });
+
+    // Gửi dữ liệu
+    async function submitReview() {
+        const content = textarea.value.trim();
+
+        if (currentRating === 0) {
+            alert("Vui lòng chọn số sao đánh giá!");
+            return;
+        }
+        if (content === '') {
+            alert("Vui lòng nhập cảm nhận của bạn!");
+            return;
+        }
+
+        const data = {
+            productId: productId,
+            stars: currentRating,
+            content: content
+        };
+
+        try {
+            const res = await fetch('/api/reviews/save', { // Khớp với API trong Controller
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert('Cảm ơn bạn đã đánh giá sản phẩm!');
+                window.location.href = '/orders'; // Thành công quay về trang đơn hàng
+            } else {
+                alert("Gửi đánh giá thất bại. Vui lòng thử lại!");
+            }
+        } catch (error) {
+            alert("Lỗi kết nối máy chủ!");
+        }
+    }
+</script>
+
+</body>
+</html>
