@@ -1,112 +1,195 @@
 package com.poly.assaiment_java6.controller;
 
 import com.poly.assaiment_java6.dto.CartItemDTO;
+import com.poly.assaiment_java6.entity.GioHang;
+import com.poly.assaiment_java6.entity.NguoiDung;
 import com.poly.assaiment_java6.entity.SanPham;
 import com.poly.assaiment_java6.model.Cart;
+import com.poly.assaiment_java6.repository.GioHangRepository;
+import com.poly.assaiment_java6.service.NguoiDungService;
 import com.poly.assaiment_java6.service.SanPhamService;
 import com.poly.assaiment_java6.utils.SessionCartUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.security.Principal;
+import java.util.*;
 
 @Controller
 public class CartController {
-    @Autowired
-    private SanPhamService sanPhamService;
+    @Autowired private SanPhamService sanPhamService;
+    @Autowired private GioHangRepository gioHangRepo;
+    @Autowired private NguoiDungService nguoiDungService;
 
-
-    @PostMapping("/cart/add") // SỬ DỤNG @PostMapping vì đây là hành động thay đổi dữ liệu (thêm)
-    public String addToCart(
-            @RequestParam("id") Integer productId, // Nhận ID sản phẩm từ form
-            @RequestParam(value = "quantity", defaultValue = "1") Integer quantity, // Nhận số lượng
-            HttpSession session,
-            RedirectAttributes redirectAttributes)
-    {
-        try {
-            // 1. TÌM SẢN PHẨM TRONG DB
-            SanPham product = sanPhamService.findById(productId).orElseThrow(() -> new Exception("Sản phẩm không tồn tại"));
-
-            // 2. THÊM VÀO GIỎ HÀNG (SỬ DỤNG UTILS HOẶC SERVICE)
-            SessionCartUtils.addItem(session, product, quantity);
-
-            redirectAttributes.addFlashAttribute("message", "Đã thêm sản phẩm vào giỏ hàng!");
-
-            // 3. CHUYỂN HƯỚNG VỀ TRANG GIỎ HÀNG
-            return "redirect:/cart";
-
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-            // Chuyển hướng lại về trang chi tiết sản phẩm (hoặc trang shop)
-            return "redirect:/products/detail/" + productId;
-        }
+    // --- HÀM TIỆN ÍCH: Lấy người dùng đang đăng nhập ---
+    private NguoiDung getCurrentUser(Principal principal) {
+        if (principal == null) return null;
+        String tenDangNhap = principal.getName();
+        return nguoiDungService.findByTenDangNhap(tenDangNhap).orElse(null);
     }
 
+    @PostMapping("/cart/add-ajax/{id}")
+    @ResponseBody
+    public int addToCartAjax(@PathVariable("id") Integer productId, Principal principal) {
+        NguoiDung user = getCurrentUser(principal);
+        if (user == null) return 0; // Hoặc trả về mã lỗi để bắt đăng nhập
+
+        SanPham product = sanPhamService.findById(productId).orElse(null);
+        if (product != null) {
+            // Gọi logic lưu vào Database đã viết ở trên
+            Optional<GioHang> existingItem = gioHangRepo.findByNguoiDungAndSanPham(user, product);
+            if (existingItem.isPresent()) {
+                GioHang item = existingItem.get();
+                item.setSoLuongMua(item.getSoLuongMua() + 1);
+                gioHangRepo.save(item);
+            } else {
+                GioHang newItem = new GioHang();
+                newItem.setNguoiDung(user);
+                newItem.setSanPham(product);
+                newItem.setSoLuongMua(1);
+                gioHangRepo.save(newItem);
+            }
+        }
+
+        // Trả về tổng số lượng mới từ Database
+        return gioHangRepo.findByNguoiDung(user).stream()
+                .mapToInt(GioHang::getSoLuongMua).sum();
+    }
+
+    // 2. XEM GIỎ HÀNG (LẤY DỮ LIỆU TỪ DATABASE)
     @GetMapping("/cart")
-    public String viewCart(Model model, HttpSession session) {
+    public String viewCart(Model model, Principal principal) {
+        NguoiDung user = getCurrentUser(principal);
+        if (user == null) return "redirect:/login";
 
-        // 1. Lấy danh sách sản phẩm trong giỏ hàng từ session
-        List<CartItemDTO> cartItems = SessionCartUtils.getCartItems(session);
+        // Lấy tất cả sản phẩm trong giỏ của User từ DB
+        List<GioHang> cartItems = gioHangRepo.findByNguoiDung(user);
 
-        // 2. Tính tổng tiền (nếu cần)
-        BigDecimal totalPrice = SessionCartUtils.calculateTotal(cartItems);
+        // Tính tổng tiền thủ công
+        BigDecimal totalPrice = cartItems.stream()
+                .map(item -> item.getSanPham().getGiaBan().multiply(new BigDecimal(item.getSoLuongMua())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("totalPrice", totalPrice);
         return "cart";
     }
 
-    // Trong CartController.java (hoặc nơi bạn quản lý logic Giỏ hàng)
-
+    // 3. XÓA SẢN PHẨM KHỎI GIỎ HÀNG (XÓA TRONG DATABASE)
     @GetMapping("/cart/remove/{id}")
-    public String removeCartItem(@PathVariable("id") Integer productId, HttpSession session, RedirectAttributes redirectAttributes) {
-
-        // 1. Lấy giỏ hàng chính từ Session
-        List<CartItemDTO> cartItems = SessionCartUtils.getCartItems(session);
-
-        if (cartItems != null) {
-            // 2. Xóa sản phẩm khỏi danh sách
-            boolean removed = cartItems.removeIf(item -> item.getProduct().getIdSanPham().equals(productId));
-
-            if (removed) {
-                // 3. Lưu lại danh sách đã cập nhật vào Session
-                session.setAttribute("shoppingCart", cartItems); // Dùng MAIN_CART_SESSION_KEY là "shoppingCart"
-                redirectAttributes.addFlashAttribute("message", "Đã xóa sản phẩm khỏi giỏ hàng.");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm để xóa.");
-            }
-        }
-
-        // 4. Chuyển hướng trở lại trang Giỏ hàng
+    public String removeCartItem(@PathVariable("id") Integer idGioHang, RedirectAttributes redirectAttributes) {
+        // Lưu ý: id ở đây là ID của bản ghi Giỏ hàng (idGioHang)
+        gioHangRepo.deleteById(idGioHang);
+        redirectAttributes.addFlashAttribute("message", "Đã xóa sản phẩm khỏi giỏ hàng.");
         return "redirect:/cart";
     }
 
-    @ModelAttribute("totalItems")
-    public int getTotalItems(HttpSession session) {
-        // Giả sử bạn lưu giỏ hàng trong Session với tên "cart"
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart != null) {
-            // Trả về tổng số lượng (quantity) của tất cả sản phẩm trong giỏ
-            return cart.getCartItems().stream().mapToInt(item -> item.getQuantity()).sum();
+    // 5. HIỂN THỊ TRANG THANH TOÁN (CHECKOUT)
+    @GetMapping("/checkout")
+    public String showCheckoutPage(
+            @RequestParam(value = "productIds", required = false) List<Integer> productIds,
+            @RequestParam(value = "quantities", required = false) List<Integer> quantities,
+            Model model, Principal principal) {
+
+        NguoiDung user = getCurrentUser(principal);
+        if (user == null) return "redirect:/login";
+
+        // Nếu không chọn gì cả thì bắt quay về giỏ hàng
+        if (productIds == null || productIds.isEmpty()) {
+            return "redirect:/cart";
         }
-        return 0;
+
+        List<GioHang> itemsToCheckout = new ArrayList<>();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        // Duyệt qua danh sách ID được gửi lên từ trang Giỏ hàng hoặc trang Chi tiết
+        for (int i = 0; i < productIds.size(); i++) {
+            Integer pId = productIds.get(i);
+            Integer qty = (quantities != null && i < quantities.size()) ? quantities.get(i) : 1;
+
+            SanPham sp = sanPhamService.findById(pId).orElse(null);
+            if (sp != null) {
+                GioHang item = new GioHang();
+                item.setSanPham(sp);
+                item.setSoLuongMua(qty);
+                itemsToCheckout.add(item);
+
+                totalPrice = totalPrice.add(sp.getGiaBan().multiply(new BigDecimal(qty)));
+            }
+        }
+
+        model.addAttribute("cartItems", itemsToCheckout);
+        model.addAttribute("totalPrice", totalPrice);
+        model.addAttribute("nguoiDung", user);
+
+        return "checkout";
     }
 
-    @PostMapping("/cart/add-ajax/{id}")
+    @PostMapping("/cart/update-quantity/{id}")
     @ResponseBody
-    public int addToCartAjax(@PathVariable("id") Integer id, HttpSession session) {
-        // Sử dụng Service và Utils bạn đã có sẵn trong dự án
-        SanPham product = sanPhamService.findById(id).orElse(null);
-        if (product != null) {
-            SessionCartUtils.addItem(session, product, 1);
+    public String updateQuantity(@PathVariable("id") Integer idGioHang, @RequestParam("quantity") int quantity) {
+        Optional<GioHang> itemOpt = gioHangRepo.findById(idGioHang);
+        if (itemOpt.isPresent()) {
+            GioHang item = itemOpt.get();
+            item.setSoLuongMua(quantity);
+            gioHangRepo.save(item); // Lưu số lượng mới vào DB
+            return "Success";
         }
-        // Trả về tổng số lượng từ List<CartItemDTO>
-        List<CartItemDTO> cartItems = SessionCartUtils.getCartItems(session);
-        return cartItems.stream().mapToInt(item -> item.getQuantity()).sum();
+        return "Error";
+    }
+
+    @PostMapping("/cart/add")
+    @ResponseBody
+    public ResponseEntity<?> addToCart(@RequestParam("id") Integer productId,
+                                       @RequestParam("qty") Integer quantity,
+                                       Principal principal) {
+        // 1. Kiểm tra đăng nhập
+        NguoiDung user = getCurrentUser(principal);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
+        }
+
+        try {
+            // 2. Tìm sản phẩm
+            SanPham product = sanPhamService.findById(productId).orElse(null);
+            if (product == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sản phẩm không tồn tại");
+            }
+
+            // 3. Logic lưu Database (Giống hàm add-ajax của bạn)
+            Optional<GioHang> existingItem = gioHangRepo.findByNguoiDungAndSanPham(user, product);
+            if (existingItem.isPresent()) {
+                GioHang item = existingItem.get();
+                item.setSoLuongMua(item.getSoLuongMua() + quantity); // Cộng dồn số lượng khách chọn
+                gioHangRepo.save(item);
+            } else {
+                GioHang newItem = new GioHang();
+                newItem.setNguoiDung(user);
+                newItem.setSanPham(product);
+                newItem.setSoLuongMua(quantity);
+                gioHangRepo.save(newItem);
+            }
+
+            // 4. Tính tổng số lượng món đồ trong giỏ để trả về cho Header
+            int totalItems = gioHangRepo.findByNguoiDung(user).stream()
+                    .mapToInt(GioHang::getSoLuongMua).sum();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("totalItems", totalItems);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi lưu vào Database");
+        }
     }
 }

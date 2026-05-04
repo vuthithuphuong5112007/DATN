@@ -18,7 +18,13 @@ public class SessionCartUtils {
     }
 
     public static List<CartItemDTO> getItems(HttpSession session) {
-        return (List<CartItemDTO>) session.getAttribute(TEMP_CART_SESSION_KEY);
+        // Thử lấy túi 1
+        List<CartItemDTO> items = (List<CartItemDTO>) session.getAttribute(TEMP_CART_SESSION_KEY);
+        // Nếu túi 1 rỗng thì lấy túi 2
+        if (items == null || items.isEmpty()) {
+            items = (List<CartItemDTO>) session.getAttribute(MAIN_CART_SESSION_KEY);
+        }
+        return items;
     }
 
     public static BigDecimal calculateTotal(List<CartItemDTO> items) {
@@ -34,6 +40,7 @@ public class SessionCartUtils {
 
     public static void clearCart(HttpSession session) {
         session.removeAttribute(TEMP_CART_SESSION_KEY);
+        session.removeAttribute(MAIN_CART_SESSION_KEY);
     }
 
     public static List<CartItemDTO> getCartItems(HttpSession session) {

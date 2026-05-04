@@ -5,18 +5,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh toán| Veloria</title>
+    <title>Thanh toán | Veloria</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
 
     <style>
         /* CSS cơ bản để demo phong cách tối giản */
         body { font-family: 'Times New Roman', serif; background-color: #F8F8F8; color: #333; margin: 0; }
-        .header { background-color: #FFF; border-bottom: 1px solid #EEE; }
-
-        .cta-button { background-color: #A52A2A; color: #FFF; padding: 10px 20px; text-decoration: none; display: inline-block; margin-top: 15px; }
-
+        .header {
+            background: #FFF;
+            border-bottom: 1px solid #EEE;
+            padding: 0 50px; /* Tăng padding hai bên đầu trang */
+            height: 90px;   /* Tăng chiều cao header cho thoáng */
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
         .article-meta .author {
             color: #A52A2A; /* Tên tác giả dùng màu nhấn */
@@ -174,11 +180,6 @@
             cursor: pointer;
         }
 
-        .search-box {
-            display: flex;
-            margin-bottom: 10px;
-        }
-
         .search-box input {
             flex-grow: 1;
             padding: 8px;
@@ -221,82 +222,6 @@
             font-weight: bold;
         }
 
-        .product-item:hover {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        /* --- CSS CHO TRANG CHI TIẾT SẢN PHẨM --- */
-        .product-detail-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #FFF;
-            box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            display: flex;
-            gap: 50px;
-        }
-
-        /* --- Cột Ảnh (Trái) --- */
-        .product-image-area {
-            flex: 0 0 500px; /* Cố định chiều rộng cột ảnh */
-        }
-        .main-image {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            border: 1px solid #EEE;
-            margin-bottom: 10px;
-        }
-
-        /* --- Cột Thông tin (Phải) --- */
-        .product-info-area {
-            flex-grow: 1; /* Chiếm hết phần còn lại */
-        }
-
-        .detail-name {
-            font-size: 2.5em;
-            color: #333;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-
-        .detail-price {
-            font-size: 2.2em;
-            color: #A52A2A; /* Màu nhấn */
-            font-weight: bold;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #EEE;
-            padding-bottom: 15px;
-        }
-
-        .description-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #333;
-            margin-top: 30px;
-            margin-bottom: 10px;
-        }
-
-        .detail-description {
-            font-size: 1.1em;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        /* --- Khu vực Tùy chọn Mua hàng --- */
-        .purchase-options {
-            margin-top: 30px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        /* Nút Quantity */
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            border: 1px solid #CCC;
-        }
         .quantity-control button, .quantity-control input {
             background: none;
             border: none;
@@ -315,27 +240,6 @@
         .quantity-control input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
-        }
-
-        /* Nút Mua hàng */
-        .cta-button {
-            transition: background-color 0.3s;
-        }
-        .buy-now-button {
-            background-color: #333; /* Màu đen hoặc màu tối nổi bật hơn */
-            padding: 12px 30px;
-            font-size: 1.1em;
-        }
-        .buy-now-button:hover {
-            background-color: #555;
-        }
-        .add-to-cart-button {
-            background-color: #A52A2A; /* Màu đỏ đô truyền thống */
-            padding: 12px 30px;
-            font-size: 1.1em;
-        }
-        .add-to-cart-button:hover {
-            background-color: #b31640;
         }
 
         /* Responsive cho màn hình nhỏ */
@@ -497,65 +401,111 @@
                 grid-template-columns: 1fr; /* Stack 2 cột thành 1 trên mobile */
             }
         }
+        .nav-container {
+            display: flex;
+            align-items: center; /* Căn giữa tất cả theo chiều dọc */
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #A52A2A;
+            text-decoration: none;
+            margin-right: 60px; /* Tạo khoảng trống 60px giữa Logo và Menu */
+            flex-shrink: 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px; /* Khoảng cách giữa các mục Trang chủ, Cửa hàng... */
+            align-items: center;
+        }
+        .auth-area {
+            margin-left: auto; /* PHÉP MÀU: Tự động chiếm hết khoảng trống bên trái để đẩy mình sang phải */
+            display: flex;
+            align-items: center;
+            gap: 25px; /* Khoảng cách giữa cụm tên và cụm giỏ hàng */
+            flex-shrink: 0;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap; /* Giúp dòng "Xin chào..." không bị xuống dòng */
+        }
+        .cart-orders {
+            display: flex;
+            gap: 20px;
+            border-left: 1px solid #EEE;
+            padding-left: 20px;
+            align-items: center;
+        }
+
+        .cart-orders a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a {
+            color: #000 !important;
+            text-decoration: none !important;
+        }
     </style>
 </head>
 <body>
 
 <header class="header">
-    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 20px 50px;">
-        <div class="logo-and-search" style="display: flex; align-items: center; gap: 40px;">
-            <div class="logo" style="font-size: 1.8em; font-weight: bold; color: #A52A2A;">Veloria</div>
-        </div>
+    <div class="nav-container">
+        <a th:href="@{/}" class="logo">Veloria - Own Your Glow</a>
 
         <div class="nav-links">
-            <a th:href="@{/}" style="margin-right: 20px; text-decoration: none; color: #333;">Trang Chủ</a>
-            <a th:href="@{/shop}" style="margin-right: 20px; text-decoration: none; color: #333;">Cửa Hàng</a>
-            <a th:href="@{/contact}" style="margin-right: 20px; text-decoration: none; color: #333;">Liên Hệ</a>
-            <a th:href="@{/canhan}" style="margin-right: 20px; text-decoration: none; color: #333;">Cá Nhân</a>
-            <!-- LOGIC MỚI: NÚT QUẢN LÝ -->
-            <!-- Chỉ hiển thị nếu người dùng có vai trò là ADMIN hoặc OWNER -->
+            <a th:href="@{/}">Trang Chủ</a>
+            <a th:href="@{/shop}">Cửa Hàng</a>
+            <a th:href="@{/contact}">Liên Hệ</a>
+            <a th:href="@{/blog/danh-sach}" style="margin-right: 20px; text-decoration: none; color: #333;">Bài Viết</a>
+
             <div sec:authorize="hasAnyAuthority('OWNER', 'ADMIN')" style="display: inline-block;">
-                <a th:href="@{/admin/home}" style="margin-right: 20px; text-decoration: none; color: #A52A2A; font-weight: bold;">
-                    Quản Lý
-                </a>
+                <a th:href="@{/admin/home}" style="color: #A52A2A; font-weight: bold;">Quản Lý</a>
             </div>
-            <!-- KẾT THÚC LOGIC MỚI -->
         </div>
 
         <div class="auth-area">
-            <div sec:authorize="isAuthenticated()" style="display: inline-block;">
-                <span style="margin-right: 15px;">
-                    Xin chào,
-                    <!-- Gán principal vào biến tạm để sử dụng toán tử T() -->
+            <div sec:authorize="isAuthenticated()" class="user-info">
+                <span>Xin chào,
                     <b th:with="userPrincipal=${#authentication.principal}">
-
-                        <!-- 1. KIỂM TRA: Nếu là OAuth2User (Đăng nhập Google) -->
                         <span th:if="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
-                              th:text="${userPrincipal.attributes.name}">
-                            <!-- Lấy tên đầy đủ từ thuộc tính 'name' của Google -->
-                        </span>
-
-                        <!-- 2. NGƯỢC LẠI: Nếu là Custom UserDetails (Đăng nhập Form) -->
+                              th:text="${userPrincipal.attributes.name}"></span>
                         <span th:unless="${userPrincipal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)}"
-                              th:text="${#authentication.name}">
-                            <!-- Lấy Principal Name (thường là TenDangNhap hoặc Email) -->
-                        </span>
+                              th:text="${#authentication.name}"></span>
                     </b>
                 </span>
-                <a th:href="@{/logout}" class="cta-button" style="background-color: #555;">Đăng xuất</a>
+                <a th:href="@{/logout}" class="logout-btn" style="background: #555; color: #fff; padding: 5px 12px; border-radius: 4px; text-decoration: none; font-size: 13px;">Đăng xuất</a>
             </div>
 
-            <div sec:authorize="!isAuthenticated()" style="display: inline-block;">
-                <a th:href="@{/login}" style="margin-right: 15px; text-decoration: none; color: #A52A2A; font-weight: bold;">Đăng nhập</a>
-                <a th:href="@{/register}" class="cta-button">Đăng ký</a>
-            </div>
+            <div class="cart-orders">
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" style="margin-right: 5px;">Đăng nhập</a>
+                    <span style="margin-right: 10px; color: #ccc;">|</span>
+                </th:block>
 
-            <a th:href="@{/cart}" style="margin-left: 20px; text-decoration: none; color: #333;">[🛒 Giỏ hàng]</a>
-            <a th:href="@{/orders}" style="margin-left: 20px; text-decoration: none; color: #333;">
-                [ 📦 Đơn hàng ]
-            </a>
+                <a th:href="@{/cart}">
+                    <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
+                    Giỏ hàng
+                    <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
+                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          (0)
+                    </span>
+                    &rarr;
+                </a>
+                <a th:href="@{/orders}"><i class="fas fa-receipt" style="color:#A52A2A"></i> Đơn hàng &rarr;</a>
+            </div>
         </div>
-    </nav>
+    </div>
 </header>
 
 <main class="checkout-wrapper">
@@ -564,6 +514,10 @@
     <div class="checkout-grid">
         <div class="checkout-form-area">
             <form th:action="@{/checkout/place-order}" method="post">
+                <th:block th:each="item : ${cartItems}">
+                    <input type="hidden" name="productIds" th:value="${item.sanPham.idSanPham}">
+                    <input type="hidden" name="quantities" th:value="${item.soLuongMua}">
+                </th:block>
 
                 <section class="form-section">
                     <h3>1. Thông tin Giao hàng</h3>
@@ -622,7 +576,9 @@
                         </label>
                     </div>
                 </section>
-                <button type="submit" class="place-order-button">HOÀN TẤT ĐẶT HÀNG</button>
+                <button type="submit" class="place-order-button">
+                    HOÀN TẤT ĐẶT HÀNG
+                </button>
             </form>
         </div>
 
@@ -632,30 +588,30 @@
             <ul class="summary-products">
                 <li class="summary-product-item" th:each="item : ${cartItems}">
                     <div>
-                        <span class="summary-product-name" th:text="${item.product.tenSanPham}">Nước Hoa Boitown</span>
-                        <span class="summary-product-info" th:text="'SL: ' + ${item.quantity}">SL: 1</span>
+                        <b class="summary-product-name" th:text="${item.sanPham.tenSanPham}">Tên sản phẩm</b>
+                        <span class="summary-product-info" th:text="'SL: ' + ${item.soLuongMua}">SL: 1</span>
                     </div>
-                    <span th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' đ'">200.000 đ</span>
+                    <span th:text="${#numbers.formatDecimal(item.soLuongMua * item.sanPham.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
                 </li>
             </ul>
 
             <div class="summary-item">
                 <span>Tạm tính</span>
-                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">900.000 đ</span>
+                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
             </div>
 
             <div class="summary-item">
                 <span>Phí Vận chuyển</span>
-                <span style="color: green;">Miễn phí</span>
+                <span style="color: green; font-weight: bold;">Miễn phí</span>
             </div>
 
             <div class="summary-item summary-total">
                 <span>Tổng cộng</span>
-                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">900.000 đ</span>
+                <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
             </div>
 
-            <p style="font-size: 0.9em; margin-top: 15px; color: #888;">
-                Bằng cách nhấp vào "Hoàn tất Đặt hàng", bạn đồng ý với các Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi.
+            <p style="font-size: 0.85em; margin-top: 15px; color: #888; font-style: italic;">
+                Bằng cách nhấp vào "Hoàn tất Đặt hàng", bạn đồng ý với các Điều khoản Dịch vụ của Veloria.
             </p>
         </div>
     </div>

@@ -489,7 +489,7 @@
                     <i class="fas fa-shopping-bag" style="color:#A52A2A"></i>
                     Giỏ hàng
                     <span id="cart-count" style="color:#A52A2A; font-weight:bold;"
-                          th:text="${totalItems > 0 ? '(' + totalItems + ')' : '(0)'}">
+                          th:text="'(' + (${totalItems} ?: 0) + ')'">
                           (0)
                     </span>
                     &rarr;
@@ -530,6 +530,7 @@
 
                     <button class="add-to-cart-btn cta-button"
                             th:data-id="${p.idSanPham}"
+                            th:data-auth="${#authorization.expression('isAuthenticated()')}"
                             style="margin-top: 10px; padding: 8px 15px; background-color: #A52A2A; font-size: 0.9em; border: none; cursor: pointer; color: white;">
                         Thêm vào giỏ hàng
                     </button>
@@ -600,6 +601,7 @@
 
                             <button class="add-to-cart-btn cta-button"
                                     th:data-id="${p.idSanPham}"
+                                    th:data-auth="${#authorization.expression('isAuthenticated()')}"
                                     style="margin-top: 10px; padding: 8px 15px; background-color: #A52A2A; font-size: 0.9em; border: none; cursor: pointer; color: white;">
                                 Thêm vào giỏ hàng
                             </button>

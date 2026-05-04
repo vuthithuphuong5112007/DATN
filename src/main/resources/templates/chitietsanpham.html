@@ -5,15 +5,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chính | Shop Nước Hoa</title>
-
+    <title>Chi tiết sản phẩm | Shop Nước Hoa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <link rel="stylesheet" href="../css/style.css" th:href="@{/css/style.css}">
-
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-
         /* ===== RESET NHẸ ===== */
         body {
             font-family: 'Times New Roman', serif;
@@ -21,7 +17,6 @@
             margin: 0;
             color: #333;
         }
-
         /* ================= HEADER ================= */
         /* HEADER */
             .header {
@@ -401,7 +396,7 @@
 
 <header class="header">
     <div class="nav-container">
-        <a th:href="@{/}" class="logo">Veloria</a>
+        <a th:href="@{/}" class="logo">Veloria - Own Your Glow</a>
 
         <div class="nav-links">
             <a th:href="@{/}">Trang Chủ</a>
@@ -465,12 +460,15 @@
 
                 <div class="purchase-options">
                     <div class="quantity-control">
-                        <button type="button" onclick="decrementQuantity(this)"><i class="fas fa-minus"></i></button>
+                        <button type="button" onclick="decrementQuantity()"><i class="fas fa-minus"></i></button>
                         <input type="number" name="quantity" id="quantityInput" value="1" min="1" max="99" required/>
-                        <button type="button" onclick="incrementQuantity(this)"><i class="fas fa-plus"></i></button>
+                        <button type="button" onclick="incrementQuantity()"><i class="fas fa-plus"></i></button>
                     </div>
 
-                    <button type="submit" class="cta-button add-to-cart-button">
+                    <button type="button"
+                            class="cta-button add-to-cart-btn"
+                            th:data-id="${product.idSanPham}"
+                            th:data-auth="${#authorization.expression('isAuthenticated()')}">
                         <i class="fas fa-shopping-cart"></i> Thêm vào Giỏ hàng
                     </button>
 
@@ -528,10 +526,6 @@
     </div>
 </main>
 
-
-
-
-
 <script th:inline="javascript">
     window.isRealAdmin = /*[[${isAdmin != null ? isAdmin : false}]]*/ false;
 </script>
@@ -548,10 +542,10 @@
         const buyNowButton = document.getElementById('buyNowButton');
 
         function updateBuyNowLink() {
-            if (!buyNowButton || !window.productId || !quantityInput) return;
-            let qty = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
-            quantityInput.value = qty;
-            buyNowButton.href = `/checkout/buy-now?productId=${window.productId}&quantity=${qty}`;
+            const qty = document.getElementById('quantityInput').value;
+            const pId = window.productId;
+            // Gửi đúng định dạng tham số mà Controller mới yêu cầu
+            buyNowButton.href = `/checkout?productIds=${pId}&quantities=${qty}`;
         }
 
         if (quantityInput) {
@@ -705,6 +699,39 @@
             alert("Lỗi kết nối khi xóa!");
         }
     }
+
+    $(document).ready(function() {
+        $(document).on('click', '.add-to-cart-btn', function() {
+            const productId = $(this).data('id');
+            const isAuthenticated = $(this).data('auth');
+
+            if (!isAuthenticated) {
+                alert("Vui lòng đăng nhập!");
+                window.location.href = "/login";
+                return;
+            }
+
+            let quantity = $('#quantityInput').val() || 1;
+
+            $.ajax({
+                url: '/cart/add',
+                type: 'POST',
+                data: {
+                    id: productId,
+                    qty: quantity
+                },
+                success: function(response) {
+                    // response.totalItems là con số Java trả về sau khi cộng dồn trong DB
+                    $('#cart-count').text('(' + response.totalItems + ')');
+                    alert("Đã thêm vào giỏ hàng thành công!");
+                },
+                error: function(xhr) {
+                    if(xhr.status === 401) alert("Vui lòng đăng nhập!");
+                    else alert("Lỗi hệ thống, không lưu được vào DB!");
+                }
+            });
+        });
+    });
 </script>
 
 <footer class="main-footer">

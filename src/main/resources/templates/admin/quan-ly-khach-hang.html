@@ -385,6 +385,7 @@
                     <th>Họ Tên</th>
                     <th>Email</th>
                     <th>SĐT</th>
+                    <th>ĐỊA CHỈ</th>
                     <th>Vai Trò</th>
                 </tr>
                 </thead>
@@ -395,6 +396,7 @@
                     <td th:text="${nd.hoTen}"></td>
                     <td th:text="${nd.email}"></td>
                     <td th:text="${nd.sdt}"></td>
+                    <td th:text="${nd.diaChi}"></td>
                     <td th:text="${nd.vaiTro}"></td>
                 </tr>
                 </tbody>
@@ -470,7 +472,10 @@
         const hoTen = row.cells[2].textContent;
         const email = row.cells[3].textContent;
         const sdt = row.cells[4].textContent;
-        const vaiTro = row.cells[5].textContent;
+        const diaChi = row.cells[5].textContent.trim();
+        document.getElementById('diaChi').value = diaChi;
+        const vaiTro = row.cells[6].textContent;
+
 
         // Địa chỉ (Vấn đề: Địa chỉ không hiển thị trong bảng nên không lấy được trực tiếp)
         // Nếu địa chỉ không có trong bảng, bạn phải nạp nó từ thuộc tính data-address
@@ -482,6 +487,7 @@
         document.getElementById('hoTen').value = row.cells[2].textContent;
         document.getElementById('email').value = row.cells[3].textContent;
         document.getElementById('sdt').value = row.cells[4].textContent;
+        document.getElementById('diaChi').value = row.cells[5].textContent.trim();
         document.getElementById('vaiTro').value = vaiTro;
 
         // Reset trường mật khẩu
@@ -491,11 +497,13 @@
         if (vaiTro === 'OWNER') {
             deleteButton.disabled = true; // Khóa nút xóa nếu là OWNER
             deleteButton.style.opacity = '0.5'; // Làm mờ nút cho dễ nhận biết
+            deleteButton.style.pointerEvents = 'none';
             deleteButton.title = "Không thể xóa tài khoản Quản trị viên hệ thống";
         } else {
             deleteButton.disabled = false;
             deleteButton.style.opacity = '1';
             deleteButton.title = "";
+            deleteButton.style.pointerEvents = 'auto';
         }
         // Kích hoạt nút Xóa
         document.getElementById('btnDeleteKhachHang').disabled = false;

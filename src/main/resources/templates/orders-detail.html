@@ -39,6 +39,160 @@
             .product-item { flex-direction: column; align-items: flex-start; }
             .product-item img { margin-bottom: 15px; }
         }
+        /* --- STEPPER STYLE --- */
+        .order-stepper {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 0 50px 0;
+            position: relative;
+        }
+
+        /* Đường kẻ mờ phía sau */
+        .order-stepper::before {
+            content: "";
+            position: absolute;
+            top: 35%;
+            left: 5%;
+            right: 5%;
+            height: 3px;
+            background: #ebebeb;
+            z-index: 1;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step .icon-box {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border: 3px solid #ebebeb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.2em;
+            color: #ccc;
+            transition: all 0.4s ease;
+        }
+
+        .step .step-text {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #888;
+        }
+
+        /* Trạng thái Hoàn thành/Đang chọn */
+        .step.active .icon-box {
+            background: #A52A2A; /* Màu của Veloria */
+            border-color: #A52A2A;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(165, 42, 42, 0.3);
+        }
+
+        .step.active .step-text {
+            color: #A52A2A;
+        }
+
+        /* Trạng thái Hủy */
+        .step.cancelled .icon-box {
+            background: #333;
+            border-color: #333;
+            color: #fff;
+        }
+        /* Đường kẻ đỏ nối các bước đã hoàn thành */
+        .step.active + .step::after {
+            content: "";
+            position: absolute;
+            top: 35%;
+            /* Căn chỉnh lại để đường kẻ nằm giữa 2 hình tròn, không chạm tâm */
+            left: -40%;
+            width: 80%;
+            height: 3px;
+            background: #A52A2A; /* Màu đỏ rượu Veloria */
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+
+        /* Thêm hiệu ứng bo tròn 2 đầu đường kẻ cho bớt cứng */
+        .step.active + .step::after {
+            border-radius: 10px;
+        }
+
+        .btn-cancel {
+            background-color: #7c140f;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .btn-cancel:hover {
+            background-color: #7c140f; /* Đỏ đậm hơn khi di chuột vào cho sinh động */
+            color: white;
+        }
+
+        /* Dành cho thẻ <a> khi không cho phép click */
+        .btn-cancel.disabled-link {
+            background-color: #ddd !important;
+            color: #888 !important;
+            cursor: not-allowed;
+            pointer-events: none; /* Quan trọng: Ngăn người dùng click vào link */
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #fff; padding: 30px; border-radius: 12px; width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .modal-content textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin: 15px 0; font-family: inherit;
+        }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-confirm-cancel { background: #7c140f; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .btn-close { background: #eee; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        @media print {
+            /* 1. Ẩn tất cả các nút bấm và modal khi in */
+            .actions, .btn, .btn-cancel, #cancelModal, .modal-overlay {
+                display: none !important;
+            }
+
+            /* 2. Căn chỉnh lại khung hóa đơn cho vừa khít trang giấy */
+            body {
+                background-color: #fff; /* Bỏ màu nền xám của web */
+                padding: 0;
+            }
+
+            .detail-container {
+                max-width: 100%;
+                width: 100%;
+                box-shadow: none; /* Bỏ đổ bóng */
+                padding: 0;
+                margin: 0;
+            }
+
+            /* 3. Hiện rõ các đường kẻ để phân tách sản phẩm */
+            .product-item {
+                border-bottom: 1px solid #000 !important;
+            }
+
+            .order-summary {
+                background: #fff !important; /* Bỏ màu nền xám của summary */
+                border: 1px solid #eee;
+            }
+        }
     </style>
 </head>
 <body>
@@ -50,6 +204,34 @@
             <div class="order-date">Ngày đặt: <span th:text="${#dates.format(order.ngayDatHang, 'dd/MM/yyyy HH:mm')}"></span></div>
         </div>
         <div class="status-badge" th:text="${order.trangThaiDonHang}">PENDING</div>
+    </div>
+
+    <div class="order-stepper">
+        <div class="step" th:classappend="${order.trangThaiDonHang == 'PENDING' || order.trangThaiDonHang == 'SHIPPED' || order.trangThaiDonHang == 'COMPLETED' ? 'active' : ''}">
+            <div class="icon-box"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="step-text">Chờ xác nhận</div>
+        </div>
+
+        <div class="step" th:classappend="${order.trangThaiDonHang == 'SHIPPED' || order.trangThaiDonHang == 'COMPLETED' ? 'active' : ''}">
+            <div class="icon-box"><i class="fas fa-truck"></i></div>
+            <div class="step-text">Đang giao hàng</div>
+        </div>
+
+        <div class="step" th:classappend="${order.trangThaiDonHang == 'COMPLETED' ? 'active' : ''}">
+            <div class="icon-box"><i class="fas fa-box-open"></i></div>
+            <div class="step-text">Đã hoàn thành</div>
+        </div>
+
+        <div class="step cancelled" th:if="${order.trangThaiDonHang == 'CANCELLED'}">
+            <div class="icon-box"><i class="fas fa-window-close"></i></div>
+            <div class="step-text">Đã hủy đơn</div>
+        </div>
+    </div>
+
+    <div th:if="${order.trangThaiDonHang == 'CANCELLED'}"
+         style="margin-top: -20px; margin-bottom: 30px; padding: 15px; background-color: #FFF5F5; border-left: 4px solid #7c140f; border-radius: 4px;">
+        <strong style="color: #7c140f;"><i class="fas fa-exclamation-circle"></i> Lý do hủy đơn:</strong>
+        <p th:text="${order.lyDoHuy}" style="margin: 5px 0 0 0; font-style: italic; color: #555;"></p>
     </div>
 
     <div class="product-list">
@@ -87,11 +269,41 @@
         <a th:href="@{/orders}" class="btn btn-back">
             <i class="fas fa-arrow-left"></i> Quay lại lịch sử
         </a>
+
+        <button th:if="${order.trangThaiDonHang == 'PENDING'}"
+                type="button" class="btn-cancel" onclick="openCancelModal()">
+            <i class="fas fa-times"></i> Hủy đơn hàng
+        </button>
+
+        <div id="cancelModal" class="modal-overlay" style="display:none;">
+            <div class="modal-content">
+                <h3>Lý do hủy đơn hàng</h3>
+                <p>Vui lòng cho Veloria biết tại sao bạn muốn hủy đơn này nhé:</p>
+                <form th:action="@{/orders/cancel}" method="post">
+                    <input type="hidden" name="id" th:value="${order.idDonHang}">
+                    <textarea name="reason" rows="4" required
+                              placeholder="Ví dụ: Tôi muốn đổi địa chỉ, Tôi đặt nhầm sản phẩm..."></textarea>
+                    <div class="modal-actions">
+                        <button type="button" onclick="closeCancelModal()" class="btn-close">Đóng</button>
+                        <button type="submit" class="btn-confirm-cancel">Xác nhận hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <button onclick="window.print()" class="btn btn-print">
             <i class="fas fa-print"></i> In đơn hàng
         </button>
     </div>
 </div>
 
+<script>
+    function openCancelModal() {
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+    function closeCancelModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+    }
+</script>
 </body>
 </html>
