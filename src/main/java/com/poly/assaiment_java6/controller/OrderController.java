@@ -95,7 +95,7 @@ public class OrderController {
             DonHang order = orderOpt.get();
             if ("PENDING".equals(order.getTrangThaiDonHang())) {
                 order.setTrangThaiDonHang("CANCELLED");
-                // order.setLyDoHuy(reason); // Bật dòng này nếu Entity DonHang có trường lyDoHuy
+                order.setLyDoHuy(reason); // Bật dòng này nếu Entity DonHang có trường lyDoHuy
                 donHangService.save(order);
             }
         }

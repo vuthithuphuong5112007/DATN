@@ -102,7 +102,7 @@
         <a th:href="@{/admin/sanpham}"><i class="fas fa-box"></i> Quản lý Sản phẩm</a>
         <a th:href="@{/admin/danhmuc}"><i class="fas fa-sitemap"></i> Quản lý Danh mục</a>
         <a th:href="@{/admin/donhang}"><i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng</a>
-        <a th:href="@{/admin/khachhang}" class="active"><i class="fas fa-users"></i> Quản lý Khách hàng</a>
+        <a th:href="@{/admin/khachhang}" class="active"><i class="fas fa-users"></i> Quản lý Tài khoản</a>
         <a th:href="@{/admin/blog}" class="active-if-on-this-page-blog"><i class="fas fa-blog"></i> Quản lý Blog</a>
         <a th:href="@{/admin/baocaothongke}"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</a>
     </nav>
@@ -129,7 +129,7 @@
 
     <div class="product-container">
         <form th:action="@{/admin/khachhang/save}" th:object="${nguoiDung}" method="post">
-            <h3 style="color: var(--color-primary);"><i class="fas fa-user-plus"></i> Thông tin Khách hàng</h3>
+            <h3 style="color: var(--color-primary);"><i class="fas fa-user-plus"></i> Thông tin Tài khoản</h3>
             <div class="input-form-grid">
                 <input type="hidden" th:field="*{idNguoiDung}" id="idNguoiDung"/>
                 <div class="form-group">
